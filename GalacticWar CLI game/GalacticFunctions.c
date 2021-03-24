@@ -59,7 +59,6 @@ void execute_command(const int command_index, char* command_line, galaxy_t** gal
 void ADD(char* planet_name, const int planet_index, const int shields_number, galaxy_t** galaxy)
 {
 	dll_add_nth_node(*galaxy, planet_index, shields_number, planet_name);
-    printf("The planet %s has joined the galaxy.\n",((only_data_t*) (*galaxy)->head->data)->name);
 }
 
 // Throw planet into a blackhole
@@ -143,15 +142,28 @@ void SHW(int planet_index, galaxy_t **galaxy)
 		return;
 	}
 	if(planet_index == 0) {
+		
 		printf("NAME: %s\n",((only_data_t*)(*galaxy)->head->data)->name);
-		if(((only_data_t*)(*galaxy)->head->prev) != ((only_data_t*)(*galaxy)->head) && ((only_data_t*)(*galaxy)->head->next) != ((only_data_t*)(*galaxy)->head))
-			printf("CLOSEST: %s and %s\n",((only_data_t*)(*galaxy)->head->prev->data)->name,((only_data_t*)(*galaxy)->head->next->data)->name);
-		else if(((only_data_t*)(*galaxy)->head->prev) == ((only_data_t*)(*galaxy)->head) && ((only_data_t*)(*galaxy)->head->next) != ((only_data_t*)(*galaxy)->head))
-			printf("CLOSEST: %s\n",((only_data_t*)(*galaxy)->head->next->data)->name);
-		else if(((only_data_t*)(*galaxy)->head->prev) != ((only_data_t*)(*galaxy)->head) && ((only_data_t*)(*galaxy)->head->next) == ((only_data_t*)(*galaxy)->head))
-			printf("CLOSEST: %s\n",((only_data_t*)(*galaxy)->head->prev->data)->name);
+
+		// Display neighbours 
+		int printed_left_neighbour = 0;
+		int printed_right_neighbour = 0;
+		if(strcmp(((only_data_t*) (*galaxy)->head->data)->name,((only_data_t*) (*galaxy)->head->prev->data)->name) != 0)
+			printed_left_neighbour = 1;
+		if(strcmp(((only_data_t*) (*galaxy)->head->data)->name,((only_data_t*) (*galaxy)->head->next->data)->name) != 0)
+			printed_right_neighbour = 1;
+		if(strcmp(((only_data_t*) (*galaxy)->head->prev->data)->name,((only_data_t*) (*galaxy)->head->next->data)->name) == 0)
+			printed_right_neighbour = 0;
+
+		if(printed_left_neighbour && printed_right_neighbour)
+			printf("CLOSEST: %s and %s\n", ((only_data_t*) (*galaxy)->head->next->data)->name, ((only_data_t*) (*galaxy)->head->prev->data)->name);
+		else if(printed_right_neighbour && !printed_left_neighbour)
+			printf("CLOSEST: %s\n", ((only_data_t*) (*galaxy)->head->next->data)->name);
+		else if(!printed_right_neighbour && printed_left_neighbour)
+			printf("CLOSEST: %s\n", ((only_data_t*) (*galaxy)->head->prev->data)->name);
 		else
 			printf("CLOSEST: none\n");
+
 		printf("SHIELDS: ");
 		dll_print_int_list(((only_data_t*)(*galaxy)->head->data)->shield);
 		printf("\nKILLED: %d\n",((only_data_t*)(*galaxy)->head->next->data)->destroyed_planets);
@@ -164,18 +176,24 @@ void SHW(int planet_index, galaxy_t **galaxy)
 			
 		printf("NAME: %s\n",((only_data_t*)object_to_print->data)->name);
 
-		// TO FIX 
-		if(((only_data_t*)object_to_print->prev) != ((only_data_t*)object_to_print) && ((only_data_t*)object_to_print->next) != ((only_data_t*)object_to_print) && ((only_data_t*)object_to_print->prev) == ((only_data_t*)object_to_print->prev))
-			printf("CLOSEST: %s\n",((only_data_t*)object_to_print->prev->data)->name);
-		else if(((only_data_t*)object_to_print->prev) != ((only_data_t*)object_to_print) && ((only_data_t*)object_to_print->next) != ((only_data_t*)object_to_print))
-			printf("CLOSEST: %s and %s\n",((only_data_t*)object_to_print->prev->data)->name,((only_data_t*)object_to_print->next->data)->name);
-		else if(((only_data_t*)object_to_print->prev) == ((only_data_t*)object_to_print) && ((only_data_t*)object_to_print->next) != ((only_data_t*)object_to_print))
-			printf("CLOSEST: %s\n",((only_data_t*)object_to_print->next->data)->name);
-		else if(((only_data_t*)object_to_print->prev) != ((only_data_t*)object_to_print) && ((only_data_t*)object_to_print->next) == ((only_data_t*)object_to_print))
-			printf("CLOSEST: %s\n",((only_data_t*)object_to_print->prev->data)->name);
+		// Display neighbours 
+		int printed_left_neighbour = 0;
+		int printed_right_neighbour = 0;
+		if(strcmp(((only_data_t*) object_to_print->data)->name,((only_data_t*) object_to_print->prev->data)->name) != 0)
+			printed_left_neighbour = 1;
+		if(strcmp(((only_data_t*) object_to_print->data)->name,((only_data_t*) object_to_print->next->data)->name) != 0)
+			printed_right_neighbour = 1;
+		if(strcmp(((only_data_t*) object_to_print->prev->data)->name,((only_data_t*) object_to_print->next->data)->name) == 0)
+			printed_right_neighbour = 0;
+		
+		if(printed_left_neighbour && printed_right_neighbour)
+			printf("CLOSEST: %s and %s\n", ((only_data_t*) object_to_print->next->data)->name, ((only_data_t*) object_to_print->prev->data)->name);
+		else if(printed_right_neighbour && !printed_left_neighbour)
+			printf("CLOSEST: %s\n", ((only_data_t*) object_to_print->next->data)->name);
+		else if(!printed_right_neighbour && printed_left_neighbour)
+			printf("CLOSEST: %s\n", ((only_data_t*) object_to_print->prev->data)->name);
 		else
 			printf("CLOSEST: none\n");
-
 
 		printf("SHIELDS: ");
 		dll_print_int_list(((only_data_t*)object_to_print->data)->shield);

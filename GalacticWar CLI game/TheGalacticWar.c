@@ -13,12 +13,12 @@ int main(void)
 	char* command_line = NULL;
 	command_line = malloc(MAX_COMMAND * sizeof(char));
 	DIE(!command_line, "Couldn't start the program!\n");
-	char command[3];
+	char command[4];
 	int command_index = 0;
 
 	// Create my galaxy
 	galaxy_t* my_galaxy = NULL;
-	my_galaxy = init_galaxy();
+	my_galaxy = dll_create();
 	DIE(!my_galaxy, "Couldn't create the galaxy!\n");
 
 	// Get input and execute action correctly

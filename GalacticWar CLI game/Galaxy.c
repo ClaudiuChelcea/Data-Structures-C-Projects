@@ -49,8 +49,7 @@ galaxy_object *
 
 // Add node to nth position
 void
-dll_add_nth_node_shield(galaxy_t * list, unsigned int n,
-    const void * data) {
+dll_add_nth_node_shield(galaxy_t * list, unsigned int n, const void * data) {
     if (!list) {
         fprintf(stderr, "No list to add node to!\n");
         return;
@@ -63,7 +62,7 @@ dll_add_nth_node_shield(galaxy_t * list, unsigned int n,
         new_node -> next = new_node;
         new_node -> prev = new_node;
         new_node -> data = malloc(sizeof(int));
-        *((int * ) new_node -> data) = * ((int * ) data);
+        *((int * ) new_node -> data) = *((int * ) data);
         list -> head = new_node;
         list -> galaxy_size++;
     } else if (n == 0) { // printf("Create firs222t item!\n");
@@ -75,7 +74,7 @@ dll_add_nth_node_shield(galaxy_t * list, unsigned int n,
         new_node -> prev = NULL;
         new_node -> data = malloc(sizeof(int));
 
-        *((int * ) new_node -> data) = * ((int * ) data);
+        *((int * ) new_node -> data) = *((int * ) data);
 
         new_node -> next = list -> head;
         new_node -> prev = list -> head -> prev;
@@ -91,9 +90,10 @@ dll_add_nth_node_shield(galaxy_t * list, unsigned int n,
         new_node -> next = NULL;
         new_node -> prev = NULL;
         new_node -> data = malloc(sizeof(int));
-        *((int * ) new_node -> data) = * ((int * ) data);
+        int tmp = *((int *) data);
+      
+        *((int * ) new_node -> data) = *((int * ) data);
         list -> galaxy_size++;
-
         new_node -> prev = list -> head -> prev;
         list -> head -> prev -> next = new_node;
         new_node -> next = list -> head;
@@ -111,7 +111,7 @@ dll_add_nth_node_shield(galaxy_t * list, unsigned int n,
         new_node -> next = NULL;
         new_node -> prev = NULL;
         new_node -> data = malloc(sizeof(int));
-        *((int * ) new_node -> data) = * ((int * ) data);
+        *((int * ) new_node -> data) = *((int * ) data);
 
         new_node -> next = new_node_add;
         new_node -> prev = new_node_add -> prev;

@@ -101,10 +101,27 @@ void UPG(unsigned int planet_index, unsigned int shield_index, unsigned const in
 }
 
 // Add a new shield to the planet
-void EXP(const int planet_index, const int shield_value, galaxy_t **galaxy)
+void EXP(const int planet_index, unsigned int shield_value, galaxy_t **galaxy)
 {
-		printf("EXP\n");
-	return;
+	if(!*galaxy || !(*galaxy)->head) {
+		fprintf(stderr,"The galaxy is empty!\n");
+		return;
+	}
+
+	if(planet_index < 0 || planet_index >= (*galaxy)->galaxy_size) {
+		fprintf(stderr, "Planet out of bounds!\n");
+		return;
+	}
+	galaxy_object* start = (*galaxy)->head;
+	int tmp = planet_index % (*galaxy)->galaxy_size;
+	for( int i=0;i<tmp;i++)
+		start = start->next;
+
+	int last = ((only_data_t*)(start->data))->shields_number + 2;
+	
+	galaxy_t* new_start = ((only_data_t*)(start->data))->shield;
+	dll_add_nth_node_shield(new_start, last, &shield_value);
+
 }
 
 // Remove a certain shield from a planet

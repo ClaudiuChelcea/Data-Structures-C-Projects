@@ -31,8 +31,8 @@ void ADD(char * planet_name,
 void BLH(const int planet_index, galaxy_t ** galaxy);
 
 // Upgrade a planet
-void UPG(const int planet_index,
-        const int shield_index, unsigned
+void UPG(unsigned int planet_index,
+        unsigned int shield_index, unsigned
     const int upgrade_value, galaxy_t ** galaxy);
 
 // Add a new shield to the planet

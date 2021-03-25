@@ -37,7 +37,7 @@ void UPG(unsigned int planet_index,
 
 // Add a new shield to the planet
 void EXP(const int planet_index,
-    const int shield_value, galaxy_t ** galaxy);
+    unsigned int shield_value, galaxy_t ** galaxy);
 
 // Remove a certain shield from a planet
 void RMV(const int planet_index,

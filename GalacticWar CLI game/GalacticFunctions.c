@@ -68,10 +68,36 @@ void BLH(const int planet_index, galaxy_t **galaxy)
 }
 
 // Upgrade a planet
-void UPG(const int planet_index, const int shield_index, unsigned const int upgrade_value, galaxy_t **galaxy)
+void UPG(unsigned int planet_index, unsigned int shield_index, unsigned const int upgrade_value, galaxy_t **galaxy)
 {
-		printf("UPG\n");
-	return;
+	if(!*galaxy || !(*galaxy)->head) {
+		fprintf(stderr,"The galaxy is empty!\n");
+		return;
+	}
+
+	if(planet_index < 0 || planet_index >= (*galaxy)->galaxy_size) {
+		fprintf(stderr, "Planet out of bounds!\n");
+		return;
+	}
+	galaxy_object* start = (*galaxy)->head;
+	int tmp = planet_index % (*galaxy)->galaxy_size;
+	for( int i=0;i<tmp;i++)
+		start = start->next;
+
+	
+
+	if(shield_index < 0 || shield_index >= ((only_data_t*) start->data)->shields_number) {
+		fprintf(stderr,"Shield out of bounds!\n");
+		return;
+	}
+
+	galaxy_object* new_start = NULL;
+	new_start = ((only_data_t*)(start->data))->shield->head;
+	DIE(!new_start,"Couldn't upgrade shield!\n");
+
+	for(unsigned int i = 0; i < shield_index; i++)
+		new_start = new_start->next;
+	*((int*)(new_start->data)) +=upgrade_value;
 }
 
 // Add a new shield to the planet

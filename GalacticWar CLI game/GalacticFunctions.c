@@ -1,7 +1,7 @@
 #include "GalacticFunctions.h"
 
 // Execute the received command
-void execute_command(const int command_index, char * command_line, galaxy_t ** galaxy) {
+void execute_command(const int command_index, char * command_line, galaxy_t ** galaxy, int* global_size) {
     char received_command[4];
     char * planet_name = NULL;
     planet_name = malloc(NAME_SIZE * sizeof(char));
@@ -18,11 +18,15 @@ void execute_command(const int command_index, char * command_line, galaxy_t ** g
     switch (command_index) {
     case 0:
         sscanf(command_line, "%s%s%d%d", received_command, planet_name, & planet_index, & shields_number);
-        ADD(planet_name, planet_index, shields_number, galaxy);
+		if(planet_index > *global_size) {
+			printf("Planet out of bounds!\n");
+			return;
+		}
+        ADD(planet_name, planet_index, shields_number, galaxy, global_size);
         break;
     case 1:
         sscanf(command_line, "%s%d", received_command, & planet_index);
-        BLH(planet_index, galaxy);
+        BLH(planet_index, galaxy, global_size);
         break;
     case 2:
         sscanf(command_line, "%s%d%d%d", received_command, & planet_index, & shield_index, & upgrade_value);
@@ -38,7 +42,7 @@ void execute_command(const int command_index, char * command_line, galaxy_t ** g
         break;
     case 5:
         sscanf(command_line, "%s%d%d", received_command, & planet_index, & planet2_index);
-        COL(planet_index, planet2_index, galaxy);
+        COL(planet_index, planet2_index, galaxy,global_size);
         break;
     case 6:
         sscanf(command_line, "%s%d %c%d", received_command, & planet_index, & direction, & units);
@@ -57,30 +61,31 @@ void execute_command(const int command_index, char * command_line, galaxy_t ** g
 // Add planet to the galaxy
 void ADD(char * planet_name,
     const int planet_index,
-        const int shields_number, galaxy_t ** galaxy) {
-    dll_add_nth_node(galaxy, planet_index, shields_number, planet_name);
+        const int shields_number, galaxy_t ** galaxy, int* global_size) {
+		
+    dll_add_nth_node(galaxy, planet_index, shields_number, planet_name, global_size);
 }
 
 // Throw planet into a blackhole
-void BLH(const int planet_index, galaxy_t ** galaxy) {
-    dll_remove_nth_node(galaxy, planet_index);
+void BLH(const int planet_index, galaxy_t ** galaxy, int* global_size) {
+    dll_remove_nth_node(galaxy, planet_index,global_size);
 }
 
 // Throw planet into a blackhole
-void BLH_implode(const int planet_index, galaxy_t ** galaxy) {
-    dll_remove_nth_node_implode(galaxy, planet_index);
+void BLH_implode(const int planet_index, galaxy_t ** galaxy, int* global_size) {
+    dll_remove_nth_node_implode(galaxy, planet_index, global_size);
 }
 
 // Upgrade a planet
 void UPG(unsigned int planet_index, unsigned int shield_index, unsigned
     const int upgrade_value, galaxy_t ** galaxy) {
     if (! * galaxy || !( * galaxy) -> head) {
-        fprintf(stderr, "The galaxy is empty!\n");
+        printf("The galaxy is empty!\n");
         return;
     }
 
     if (planet_index < 0 || planet_index >= ( * galaxy) -> galaxy_size) {
-        fprintf(stderr, "Planet out of bounds!\n");
+        printf("Planet out of bounds!\n");
         return;
     }
     galaxy_object * start = ( * galaxy) -> head;
@@ -89,7 +94,7 @@ void UPG(unsigned int planet_index, unsigned int shield_index, unsigned
         start = start -> next;
 
     if (shield_index < 0 || shield_index >= ((only_data_t * ) start -> data) -> shields_number) {
-        fprintf(stderr, "Shield out of bounds!\n");
+        printf("Shield out of bounds!\n");
         return;
     }
 
@@ -106,12 +111,12 @@ void UPG(unsigned int planet_index, unsigned int shield_index, unsigned
 int DOWN_UPG(unsigned int planet_index, unsigned int shield_index,
     const int upgrade_value, galaxy_t ** galaxy) {
     if (! * galaxy || !( * galaxy) -> head) {
-        fprintf(stderr, "The galaxy is empty!\n");
+        printf("The galaxy is empty!\n");
         return -5;
     }
 
     if (planet_index < 0 || planet_index >= ( * galaxy) -> galaxy_size) {
-        fprintf(stderr, "Planet out of bounds!\n");
+        printf("Planet out of bounds!\n");
         return -5;
     }
     galaxy_object * start = ( * galaxy) -> head;
@@ -120,7 +125,7 @@ int DOWN_UPG(unsigned int planet_index, unsigned int shield_index,
         start = start -> next;
 
     if (shield_index < 0 || shield_index >= ((only_data_t * ) start -> data) -> shields_number) {
-        fprintf(stderr, "Shield out of bounds!\n");
+        printf("Shield out of bounds!\n");
         return -5;
     }
 
@@ -137,29 +142,32 @@ int DOWN_UPG(unsigned int planet_index, unsigned int shield_index,
 // Grow the kills of a planet
 void ADD_KILLS(unsigned int planet_index, galaxy_t ** galaxy) {
     if (! * galaxy || !( * galaxy) -> head) {
+		printf("Not head!\n");
         return;
     }
-
-    if (planet_index < 0 || planet_index >= ( * galaxy) -> galaxy_size) {
+    if (planet_index < 0 || planet_index > ( * galaxy) -> galaxy_size) {
+		printf("No index!\n");
         return;
     }
+	
     galaxy_object * start = ( * galaxy) -> head;
     int tmp = planet_index % ( * galaxy) -> galaxy_size;
-    for (int i = 0; i < tmp; i++)
+    for (int i = 0; i < tmp ; i++) {
         start = start -> next;
+	}
 
-    ((only_data_t * )(start -> data)) -> destroyed_planets = ((only_data_t * )(start -> data)) -> destroyed_planets + 1;
+	((only_data_t*)start->data)->destroyed_planets = ((only_data_t*)start->data)->destroyed_planets + 1;
 }
 
 // Add a new shield to the planet
 void EXP(unsigned int planet_index, unsigned int shield_value, galaxy_t ** galaxy) {
     if (! * galaxy || !( * galaxy) -> head) {
-        fprintf(stderr, "The galaxy is empty!\n");
+        printf("The galaxy is empty!\n");
         return;
     }
 
     if (planet_index < 0 || planet_index >= ( * galaxy) -> galaxy_size) {
-        fprintf(stderr, "Planet out of bounds!\n");
+        printf("Planet out of bounds!\n");
         return;
     }
     galaxy_object * start = ( * galaxy) -> head;
@@ -177,12 +185,12 @@ void EXP(unsigned int planet_index, unsigned int shield_value, galaxy_t ** galax
 // Remove a certain shield from a planet
 void RMV(unsigned int planet_index, unsigned int shield_index, galaxy_t ** galaxy) {
     if (! * galaxy || !( * galaxy) -> head) {
-        fprintf(stderr, "The galaxy is empty!\n");
+        printf("The galaxy is empty!\n");
         return;
     }
 
     if (planet_index < 0 || planet_index >= ( * galaxy) -> galaxy_size) {
-        fprintf(stderr, "Planet out of bounds!\n");
+        printf("Planet out of bounds!\n");
         return;
     }
     galaxy_object * start = ( * galaxy) -> head;
@@ -191,10 +199,10 @@ void RMV(unsigned int planet_index, unsigned int shield_index, galaxy_t ** galax
         start = start -> next;
     unsigned int nr_shields = ((only_data_t * )(start -> data)) -> shields_number;
     if (shield_index < 0 || shield_index >= nr_shields) {
-        fprintf(stderr, "Shield out of bounds!\n");
+        printf("Shield out of bounds!\n");
         return;
     } else if (nr_shields <= 4) {
-        fprintf(stderr, "A planet cannot have less than 4 shields!\n");
+        printf("A planet cannot have less than 4 shields!\n");
         return;
     }
 
@@ -206,9 +214,9 @@ void RMV(unsigned int planet_index, unsigned int shield_index, galaxy_t ** galax
 }
 
 // Collide two planets
-void COL(unsigned int index_planet_1, unsigned int index_planet_2, galaxy_t ** galaxy) {
+void COL(unsigned int index_planet_1, unsigned int index_planet_2, galaxy_t ** galaxy, int* global_size) {
     if (! * galaxy) {
-        fprintf(stderr, "The galaxy is empty!\n");
+        printf("The galaxy is empty!\n");
         return;
     }
     if (( * galaxy) -> galaxy_size < 2) {
@@ -216,7 +224,7 @@ void COL(unsigned int index_planet_1, unsigned int index_planet_2, galaxy_t ** g
         return;
     }
     if (index_planet_1 < 0 || index_planet_1 >= ( * galaxy) -> galaxy_size || index_planet_2 < 0 || index_planet_2 >= ( * galaxy) -> galaxy_size) {
-        fprintf(stderr, "Planet out of bounds!\n");
+        printf("Planet out of bounds!\n");
         return;
     }
 
@@ -228,38 +236,32 @@ void COL(unsigned int index_planet_1, unsigned int index_planet_2, galaxy_t ** g
 
     int size1 = ((only_data_t * ) start -> data) -> shields_number / 4;
     int size2 = (((only_data_t * ) start -> next -> data) -> shields_number / 4) * 3;
-    printf("Nume:%s Scuturi:%d Size:%d\n", ((only_data_t * ) start -> data) -> name, ((only_data_t * ) start -> data) -> shields_number, size1);
-    printf("Nume:%s Scuturi:%d Size:%d\n\n\n", (((only_data_t * ) start -> next -> data) -> name), (((only_data_t * ) start -> next -> data) -> shields_number), size2);
 
     int my_shield1 = DOWN_UPG(index_planet_1, size1, -1, galaxy);
     int my_shield2 = DOWN_UPG(index_planet_2, size2, -1, galaxy);
-
-    int planet1_has_imploded = 0;
-    if (my_shield1 < 0 && my_shield1 != -5) {
-        BLH_implode(index_planet_1, galaxy);
-        planet1_has_imploded = 1;
-        ADD_KILLS(index_planet_2, galaxy);
-    }
-
-    if (my_shield2 < 0 && my_shield2 != -5) {
-        if (!planet1_has_imploded) {
-            BLH_implode(index_planet_2, galaxy);
-            ADD_KILLS(index_planet_1, galaxy);
-        } else {
-            BLH_implode(index_planet_2, galaxy);
-        }
-    }
+	if(my_shield1<0 && my_shield1!=-5 && my_shield2<0 && my_shield2!=-5) {
+		BLH_implode(index_planet_2,galaxy,global_size);
+		BLH_implode(index_planet_1,galaxy,global_size);
+	} 
+	else if(my_shield1<0 && my_shield1!=-5 && my_shield2 >=0) {
+		BLH_implode(index_planet_1,galaxy,global_size);
+		ADD_KILLS(index_planet_2, galaxy);
+	}
+	else if(my_shield1>=0  && my_shield2 <0 && my_shield2 !=-5) {
+		BLH_implode(index_planet_2,galaxy,global_size);
+		ADD_KILLS(index_planet_1, galaxy);
+	}
 }
 
 // Rotate a planet (and it's shields)
 void ROT(unsigned int planet_index,
     const char direction, int units, galaxy_t ** galaxy) {
     if (!galaxy) {
-        fprintf(stderr, "Sorry! Can't rotate the void!\n");
+        printf("Sorry! Can't rotate the void!\n");
         return;
     }
     if (planet_index < 0 || planet_index >= ( * galaxy) -> galaxy_size) {
-        fprintf(stderr, "Planet out of bounds!\n");
+        printf("Planet out of bounds!\n");
         return;
     }
     if (direction != 'c' && direction != 't') {
@@ -287,10 +289,10 @@ void ROT(unsigned int planet_index,
 void
 dll_print_int_l(galaxy_t * list) {
     if (!list) {
-        fprintf(stderr, "No list to print!\n");
+        printf("No list to print!\n");
         return;
     } else if (!list -> head) {
-        fprintf(stderr, "List is empty!\n");
+        printf("List is empty!\n");
         return;
     }
 
@@ -308,11 +310,11 @@ dll_print_int_l(galaxy_t * list) {
 // Display planet info
 void SHW(int planet_index, galaxy_t ** galaxy) {
     if (! * galaxy || !( * galaxy) -> head) {
-        fprintf(stderr, "Planet out of bounds!\n");
+        printf("Planet out of bounds!\n");
         return;
     }
     if (planet_index < 0 || (unsigned int) planet_index >= ( * galaxy) -> galaxy_size) {
-        fprintf(stderr, "Planet out of bounds!\n");
+        printf("Planet out of bounds!\n");
         return;
     }
     int find_index = planet_index % ( * galaxy) -> galaxy_size;

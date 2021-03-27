@@ -7,13 +7,13 @@
 #include <string.h>
 
 #define NAME_SIZE 64
-#define DIE(suppose, error_message)										\
-if (suppose) {															\
-    fprintf(stderr, "At line %d in file %s!\n", __LINE__, __FILE__);	\
-    fprintf(stderr, "Errno value: %d with message: ", errno);			\
-    perror(error_message);												\
-    printf("\n");														\
-    exit(errno);														\
+#define DIE(suppose, error_message)                                             \
+if (suppose) {                                                                  \
+    fprintf(stderr, "At line %d in file %s!\n", __LINE__, __FILE__);            \
+    fprintf(stderr, "Errno value: %d with message: ", errno);                   \
+    perror(error_message);                                                      \
+    printf("\n");                                                               \
+    exit(errno);                                                                \
 }
 
 // Generic node
@@ -60,9 +60,21 @@ galaxy_object *
 void
 dll_add_nth_node(galaxy_t ** list, int planet_index, int shields_number, char * planet_name);
 
+// Remove the nth node shield
+void
+dll_remove_nth_node_shield(galaxy_t ** list, unsigned int n);
+
 // Remove a node from the nth position
 void
 dll_remove_nth_node(galaxy_t ** list, unsigned int n);
+
+// Remove a node from the nth position
+void
+dll_remove_nth_node_implode(galaxy_t ** list, unsigned int n);
+
+// Remove a node from the nth position
+void
+dll_remove_nth_node_p(galaxy_t ** list, unsigned int n);
 
 // Get the size of the galaxy
 unsigned int

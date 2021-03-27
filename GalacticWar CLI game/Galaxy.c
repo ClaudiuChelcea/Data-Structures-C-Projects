@@ -18,10 +18,10 @@ galaxy_t *
 galaxy_object *
     dll_get_nth_node(galaxy_t * list, unsigned int n) {
         if (!list) {
-            fprintf(stderr, "No list!\n");
+            printf("No list!\n");
             return NULL;
         } else if (!list -> head) {
-            fprintf(stderr, "List is empty!\n");
+            printf("List is empty!\n");
             return NULL;
         } else if (n < 0) {
             printf("Invalid index!\n");
@@ -52,10 +52,10 @@ void
 dll_add_nth_node_shield(galaxy_t * list, unsigned int n,
     const void * data) {
     if (!list) {
-        fprintf(stderr, "No list to add node to!\n");
+        printf("No list to add node to!\n");
         return;
     } else if (n < 0) {
-        fprintf(stderr, "Invalid index!\n");
+        printf("Invalid index!\n");
         return;
     } else if (!list -> head) {
         galaxy_object * new_node = NULL;
@@ -121,8 +121,13 @@ dll_add_nth_node_shield(galaxy_t * list, unsigned int n,
 
 // Add node to nth position
 void
-dll_add_nth_node(galaxy_t ** list, int planet_index, int shields_number, char * planet_name) {
-    if (!( * list)) {
+dll_add_nth_node(galaxy_t ** list, unsigned int planet_index, int shields_number, char * planet_name, int* global_size)
+{
+    if(planet_index < 0) {
+        printf("Planet out of bounds!\n");
+        return;
+    }
+    else if (!( * list)) {
         // Create the list
         ( * list) = dll_create();
         ( * list) -> galaxy_size = 1;
@@ -161,10 +166,9 @@ dll_add_nth_node(galaxy_t ** list, int planet_index, int shields_number, char * 
         ( * list) -> head = new_object;
 
         printf("The planet %s has joined the galaxy.\n", (my_data -> name));
+        *global_size = *global_size + 1;
         return;
-    } else if (planet_index < 0) {
-        fprintf(stderr, "Planet out of bounds!\n");
-        return;
+        
     } else if (!( * list) -> head) {
 
         ( * list) -> galaxy_size = 1;
@@ -202,6 +206,8 @@ dll_add_nth_node(galaxy_t ** list, int planet_index, int shields_number, char * 
 
         new_object -> data = my_data;
         printf("The planet %s has joined the galaxy.\n", (my_data -> name));
+        *global_size = *global_size + 1;
+
     } else if (planet_index == 0) {
         // Create the head of the list
         galaxy_object * new_object = NULL;
@@ -242,6 +248,8 @@ dll_add_nth_node(galaxy_t ** list, int planet_index, int shields_number, char * 
         ( * list) -> head = new_object;
         ( * list) -> galaxy_size++;
         printf("The planet %s has joined the galaxy.\n", (my_data -> name));
+        *global_size = *global_size + 1;
+
     } else if ((unsigned int) planet_index >= ( * list) -> galaxy_size) {
         // Create the head of the (*list)
         galaxy_object * new_object = NULL;
@@ -281,6 +289,7 @@ dll_add_nth_node(galaxy_t ** list, int planet_index, int shields_number, char * 
         ( * list) -> head -> prev = new_object;
         ( * list) -> galaxy_size++;
         printf("The planet %s has joined the galaxy.\n", (my_data -> name));
+        *global_size = *global_size + 1;
 
     } else {
         // Create the head of the (*list)
@@ -326,6 +335,7 @@ dll_add_nth_node(galaxy_t ** list, int planet_index, int shields_number, char * 
         start -> next = new_object;
         ( * list) -> galaxy_size++;
         printf("The planet %s has joined the galaxy.\n", (my_data -> name));
+        *global_size = *global_size + 1;
     }
 }
 
@@ -333,15 +343,12 @@ dll_add_nth_node(galaxy_t ** list, int planet_index, int shields_number, char * 
 void
 dll_remove_nth_node_shield(galaxy_t ** list, unsigned int n) {
     if (! * list) {
-        printf("Execut1\n");
-        fprintf(stderr, "No shield to be thrown in the void!\n");
+        printf("No shield to be thrown in the void!\n");
         return;
     } else if (n < 0) {
-        printf("Execut2\n");
-        fprintf(stderr, "Shield out of bounds!\n");
+        printf("Shield out of bounds!\n");
         return;
     } else if (!( * list) -> head) {
-        printf("Execut3\n");
         printf("No shield to be thrown in the void!\n");
         free( * list);
         * list = NULL;
@@ -349,8 +356,6 @@ dll_remove_nth_node_shield(galaxy_t ** list, unsigned int n) {
         ( * list) -> galaxy_size = 0;
         return;
     } else if (!( * list) -> head -> next) {
-        printf("Execut4\n");
-        // printf("The planet %s has been eaten by the vortex.\n", ((only_data_t * )( * list) -> head -> data) -> name);
         ( * list) -> galaxy_size = 0;
         free(( * list) -> head -> data);
         ( * list) -> head -> next = NULL;
@@ -361,8 +366,6 @@ dll_remove_nth_node_shield(galaxy_t ** list, unsigned int n) {
         ( * list) = NULL;
         return;
     } else if (n == 0) {
-        printf("Execut5\n");
-        // printf("The planet %s has been eaten by the vortex.\n", ((only_data_t * )( * list) -> head -> data) -> name);
         if (( * list) -> galaxy_size == 1) {
             free(( * list) -> head -> data);
             ( * list) -> head -> next = NULL;
@@ -387,7 +390,6 @@ dll_remove_nth_node_shield(galaxy_t ** list, unsigned int n) {
         ( * list) -> galaxy_size--;
         return;
     } else if (n >= ( * list) -> galaxy_size - 1) {
-        printf("Execut6\n");
         if (( * list) -> galaxy_size == 1) {
             free(( * list) -> head -> data);
             ( * list) -> head -> next = NULL;
@@ -408,7 +410,6 @@ dll_remove_nth_node_shield(galaxy_t ** list, unsigned int n) {
         del = start -> next;
         start -> next = start -> next -> next;
         ( * list) -> head -> prev = start;
-        // printf("The planet %s has been eaten by the vortex.\n", ((only_data_t * )(del -> data)) -> name);
         free(del -> data);
         del -> next = NULL;
         del -> prev = NULL;
@@ -417,7 +418,6 @@ dll_remove_nth_node_shield(galaxy_t ** list, unsigned int n) {
         del = NULL;
         return;
     } else if (n > 0 && n < ( * list) -> galaxy_size - 1) {
-        printf("Execut7\n");
         galaxy_object * start = ( * list) -> head;
         for (unsigned int i = 0; i < n; i++)
             start = start -> next;
@@ -429,7 +429,7 @@ dll_remove_nth_node_shield(galaxy_t ** list, unsigned int n) {
         start -> next -> prev = start -> prev;
         start -> next = NULL;
         start -> prev = NULL;
-        // printf("The planet %s has been eaten by the vortex.\n", ((only_data_t * )(start -> data)) -> name);
+
         free(start -> data);
         start -> data = NULL;
         free(start);
@@ -443,13 +443,13 @@ void
 dll_remove_nth_node_p(galaxy_t ** list, unsigned int n) {
 
     if (! * list) {
-        fprintf(stderr, "No planet to be thrown in the void!\n");
+        printf("Planet out of bounds!\n");
         return;
     } else if (n < 0) {
-        fprintf(stderr, "Planet out of bounds!\n");
+        printf("Planet out of bounds!\n");
         return;
     } else if (!( * list) -> head) {
-        printf("No planet to be thrown in the void!\n");
+        printf("Planet out of bounds!\n");
         free( * list);
         * list = NULL;
         ( * list) -> head = NULL;
@@ -542,15 +542,15 @@ dll_remove_nth_node_p(galaxy_t ** list, unsigned int n) {
 
 // Remove the nth node
 void
-dll_remove_nth_node(galaxy_t ** list, unsigned int n) {
-    if (! * list) {
-        fprintf(stderr, "No planet to be thrown in the void!\n");
+dll_remove_nth_node(galaxy_t ** list, unsigned int n, int* global_size) {
+    if (!*list) {
+        printf("Planet out of bounds!\n");
         return;
-    } else if (n < 0) {
-        fprintf(stderr, "Planet out of bounds!\n");
+    } else if (n < 0 || n >= (*list)->galaxy_size) {
+        printf("Planet out of bounds!\n");
         return;
     } else if (!( * list) -> head) {
-        printf("No planet to be thrown in the void!\n");
+        printf("Planet out of bounds!\n");
         free( * list);
         * list = NULL;
         ( * list) -> head = NULL;
@@ -558,6 +558,7 @@ dll_remove_nth_node(galaxy_t ** list, unsigned int n) {
         return;
     } else if (!( * list) -> head -> next) {
         printf("The planet %s has been eaten by the vortex.\n", ((only_data_t * )( * list) -> head -> data) -> name);
+        *global_size = *global_size - 1;
         ( * list) -> galaxy_size = 0;
         free(( * list) -> head -> data);
         ( * list) -> head -> next = NULL;
@@ -569,6 +570,7 @@ dll_remove_nth_node(galaxy_t ** list, unsigned int n) {
         return;
     } else if (n == 0) {
         printf("The planet %s has been eaten by the vortex.\n", ((only_data_t * )( * list) -> head -> data) -> name);
+        *global_size = *global_size - 1;
         if (( * list) -> galaxy_size == 1) {
             free(( * list) -> head -> data);
             ( * list) -> head -> next = NULL;
@@ -592,7 +594,8 @@ dll_remove_nth_node(galaxy_t ** list, unsigned int n) {
         start = NULL;
         ( * list) -> galaxy_size--;
         return;
-    } else if (n >= ( * list) -> galaxy_size - 1) {
+    } else if (n >= ( * list) -> galaxy_size-1) {
+        *global_size = *global_size - 1;
         if (( * list) -> galaxy_size == 1) {
             free(( * list) -> head -> data);
             ( * list) -> head -> next = NULL;
@@ -622,6 +625,7 @@ dll_remove_nth_node(galaxy_t ** list, unsigned int n) {
         del = NULL;
         return;
     } else if (n > 0 && n < ( * list) -> galaxy_size - 1) {
+        *global_size = *global_size - 1;
         galaxy_object * start = NULL;
         start = dll_get_nth_node( * list, n);
 
@@ -639,20 +643,19 @@ dll_remove_nth_node(galaxy_t ** list, unsigned int n) {
         start = NULL;
         return;
     }
-
 }
 
 // Remove the nth node
 void
-dll_remove_nth_node_implode(galaxy_t ** list, unsigned int n) {
+dll_remove_nth_node_implode(galaxy_t ** list, unsigned int n, int* global_size) {
     if (! * list) {
-        fprintf(stderr, "No planet to be thrown in the void!\n");
+        printf("Planet out of bounds!\n");
         return;
     } else if (n < 0) {
-        fprintf(stderr, "Planet out of bounds!\n");
+        printf("Planet out of bounds!\n");
         return;
     } else if (!( * list) -> head) {
-        printf("No planet to be thrown in the void!\n");
+        printf("Planet out of bounds!\n");
         free( * list);
         * list = NULL;
         ( * list) -> head = NULL;
@@ -660,6 +663,7 @@ dll_remove_nth_node_implode(galaxy_t ** list, unsigned int n) {
         return;
     } else if (!( * list) -> head -> next) {
         printf("The planet %s has imploded.\n", ((only_data_t * )( * list) -> head -> data) -> name);
+          *global_size = *global_size - 1;
         ( * list) -> galaxy_size = 0;
         free(( * list) -> head -> data);
         ( * list) -> head -> next = NULL;
@@ -671,6 +675,7 @@ dll_remove_nth_node_implode(galaxy_t ** list, unsigned int n) {
         return;
     } else if (n == 0) {
         printf("The planet %s has imploded.\n", ((only_data_t * )( * list) -> head -> data) -> name);
+          *global_size = *global_size - 1;
         if (( * list) -> galaxy_size == 1) {
             free(( * list) -> head -> data);
             ( * list) -> head -> next = NULL;
@@ -695,6 +700,7 @@ dll_remove_nth_node_implode(galaxy_t ** list, unsigned int n) {
         ( * list) -> galaxy_size--;
         return;
     } else if (n >= ( * list) -> galaxy_size - 1) {
+          *global_size = *global_size - 1;
         if (( * list) -> galaxy_size == 1) {
             free(( * list) -> head -> data);
             ( * list) -> head -> next = NULL;
@@ -724,6 +730,7 @@ dll_remove_nth_node_implode(galaxy_t ** list, unsigned int n) {
         del = NULL;
         return;
     } else if (n > 0 && n < ( * list) -> galaxy_size - 1) {
+          *global_size = *global_size - 1;
         galaxy_object * start = NULL;
         start = dll_get_nth_node( * list, n);
 
@@ -792,10 +799,10 @@ dll_free(galaxy_t ** pp_list) {
 void
 dll_print_int_list(galaxy_t * list) {
     if (!list) {
-        fprintf(stderr, "No shields!\n");
+        printf("No shields!\n");
         return;
     } else if (!list -> head) {
-        fprintf(stderr, "No shields\n");
+        printf("No shields\n");
         return;
     }
 
@@ -813,10 +820,10 @@ dll_print_int_list(galaxy_t * list) {
 void
 dll_print_string_list(galaxy_t * list) {
     if (!list) {
-        fprintf(stderr, "No planets!\n");
+        printf("No planets!\n");
         return;
     } else if (!list -> head) {
-        fprintf(stderr, "No planets!\n");
+        printf("No planets!\n");
         return;
     }
 

@@ -3,7 +3,6 @@
 int main(void) {
     // Get the number of inputs
     int input_number = 0;
-    printf("Number of commands: ");
     scanf("%d", & input_number);
     getc(stdin);
 
@@ -23,6 +22,7 @@ int main(void) {
     DIE(!command_line, "Couldn't start the program!\n");
     char command[4];
     int command_index = 0;
+    int global_size = 0;
 
     // Create my galaxy
     galaxy_t * my_galaxy = NULL;
@@ -39,7 +39,7 @@ int main(void) {
         command_index = return_index(command, command_list);
 
         // Execute the command
-        execute_command(command_index, command_line, & my_galaxy);
+        execute_command(command_index, command_line, & my_galaxy, &global_size);
     }
 
     return 0;

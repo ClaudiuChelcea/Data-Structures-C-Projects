@@ -9,8 +9,8 @@
 #define NAME_SIZE 64
 #define DIE(suppose, error_message)                                             \
 if (suppose) {                                                                  \
-    fprintf(stderr, "At line %d in file %s!\n", __LINE__, __FILE__);            \
-    fprintf(stderr, "Errno value: %d with message: ", errno);                   \
+    printf("At line %d in file %s!\n", __LINE__, __FILE__);                     \
+    printf("Errno value: %d with message: ", errno);                            \
     perror(error_message);                                                      \
     printf("\n");                                                               \
     exit(errno);                                                                \
@@ -58,7 +58,7 @@ galaxy_object *
 
 // Add a node at the nth position
 void
-dll_add_nth_node(galaxy_t ** list, int planet_index, int shields_number, char * planet_name);
+dll_add_nth_node(galaxy_t ** list, unsigned int planet_index, int shields_number, char * planet_name, int* global_size);
 
 // Remove the nth node shield
 void
@@ -66,11 +66,11 @@ dll_remove_nth_node_shield(galaxy_t ** list, unsigned int n);
 
 // Remove a node from the nth position
 void
-dll_remove_nth_node(galaxy_t ** list, unsigned int n);
+dll_remove_nth_node(galaxy_t ** list, unsigned int n, int* global_size);
 
 // Remove a node from the nth position
 void
-dll_remove_nth_node_implode(galaxy_t ** list, unsigned int n);
+dll_remove_nth_node_implode(galaxy_t ** list, unsigned int n, int* global_size);
 
 // Remove a node from the nth position
 void

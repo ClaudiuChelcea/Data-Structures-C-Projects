@@ -12,23 +12,23 @@
 #define NAME_SIZE 64
 #define DIE(suppose, error_message)                                         \
 if (suppose) {                                                              \
-    fprintf(stderr, "At line %d in file %s!\n", __LINE__, __FILE__);        \
-    fprintf(stderr, "Errno value: %d with message: ", errno);               \
+    printf("At line %d in file %s!\n", __LINE__, __FILE__);                 \
+    printf("Errno value: %d with message: ", errno);                        \
     perror(error_message);                                                  \
     printf("\n");                                                           \
     exit(errno);                                                            \
 }
 
 // Execute the received command
-void execute_command(const int command_index, char * command_line, galaxy_t ** galaxy);
+void execute_command(const int command_index, char * command_line, galaxy_t ** galaxy, int* global_size);
 
 // Add planet to the galaxy
 void ADD(char * planet_name,
     const int planet_index,
-        const int shields_number, galaxy_t ** galaxy);
+        const int shields_number, galaxy_t ** galaxy, int* global_size);
 
 // Throw planet into a blackhole
-void BLH(const int planet_index, galaxy_t ** galaxy);
+void BLH(const int planet_index, galaxy_t ** galaxy, int* global_size);
 
 // Upgrade a planet
 void UPG(unsigned int planet_index,
@@ -40,7 +40,7 @@ int DOWN_UPG(unsigned int planet_index, unsigned int shield_index,
     const int upgrade_value, galaxy_t ** galaxy);
 
 // Throw planet into a blackhole
-void BLH_implode(const int planet_index, galaxy_t ** galaxy);
+void BLH_implode(const int planet_index, galaxy_t ** galaxy, int* global_size);
 
 // Add a new shield to the planet
 void EXP(unsigned int planet_index,
@@ -52,7 +52,7 @@ void RMV(unsigned int planet_index,
 
 // Collide two planets
 void COL(unsigned int index_planet_1,
-    unsigned int index_planet_2, galaxy_t ** galaxy);
+    unsigned int index_planet_2, galaxy_t ** galaxy, int* global_size);
 
 // Rotate a planet (and it's shields)
 void ROT(unsigned int planet_index,

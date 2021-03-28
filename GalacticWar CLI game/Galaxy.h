@@ -16,7 +16,7 @@ if (suppose) {                                                                  
     exit(errno);                                                                \
 }
 
-// Generic node
+// Generic node used for planets and shields
 typedef struct galaxy_object {
     void * data;
     struct galaxy_object * prev;
@@ -24,14 +24,14 @@ typedef struct galaxy_object {
 }
 galaxy_object;
 
-// Galaxy, the list
+// Pointer to first planet
 typedef struct galaxy_t {
     galaxy_object * head;
     unsigned int galaxy_size;
 }
 galaxy_t;
 
-// Data
+// Data for a planet
 typedef struct only_data {
     char * name;
     unsigned int shields_number;
@@ -41,55 +41,45 @@ typedef struct only_data {
 only_data_t;
 
 // Create the galaxy
-galaxy_t *
-    dll_create();
+galaxy_t * dll_create();
 
 // Add node to nth position
 void
 dll_add_nth_node_shield(galaxy_t * list, unsigned int n,
-    const void * data);
+                        const void * data);
 
 // Add first shield
 void add_First(galaxy_t * list, void * new_data);
 
 // Return the nth node of the galaxy
-galaxy_object *
-    dll_get_nth_node(galaxy_t * list, unsigned int n);
+galaxy_object * dll_get_nth_node(galaxy_t * list, unsigned int n);
 
 // Add a node at the nth position
-void
-dll_add_nth_node(galaxy_t ** list, unsigned int planet_index, int shields_number, char * planet_name, int* global_size);
+void dll_add_nth_node(galaxy_t ** list, unsigned int planet_index,
+                      int shields_number, char * planet_name, int* global_size);
 
 // Remove the nth node shield
-void
-dll_remove_nth_node_shield(galaxy_t ** list, unsigned int n);
+void dll_remove_nth_node_shield(galaxy_t ** list, unsigned int n);
 
 // Remove a node from the nth position
-void
-dll_remove_nth_node(galaxy_t ** list, unsigned int n, int* global_size);
+void dll_remove_nth_node(galaxy_t ** list, unsigned int n, int* global_size);
 
 // Remove a node from the nth position
-void
-dll_remove_nth_node_implode(galaxy_t ** list, unsigned int n, int* global_size);
+void dll_remove_nth_node_implode(galaxy_t ** list, unsigned int n, int* global_size);
 
 // Remove a node from the nth position
-void
-dll_remove_nth_node_p(galaxy_t ** list, unsigned int n);
+void dll_remove_nth_node_p(galaxy_t ** list, unsigned int n);
 
 // Get the size of the galaxy
-unsigned int
-dll_get_size(galaxy_t * list);
+unsigned int dll_get_size(galaxy_t * list);
 
 // Throw the galaxy into a black hole(release the memory)
-void
-dll_free(galaxy_t ** pp_list);
+void dll_free(galaxy_t ** pp_list);
 
 // Print the galaxy with int values
-void
-dll_print_int_list(galaxy_t * list);
+void dll_print_int_list(galaxy_t * list);
 
 // Print the galaxy with string values
-void
-dll_print_string_list(galaxy_t * list);
+void dll_print_string_list(galaxy_t * list);
 
 #endif

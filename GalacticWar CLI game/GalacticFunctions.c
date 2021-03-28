@@ -142,21 +142,19 @@ int DOWN_UPG(unsigned int planet_index, unsigned int shield_index,
 // Grow the kills of a planet
 void ADD_KILLS(unsigned int planet_index, galaxy_t ** galaxy) {
     if (! * galaxy || !( * galaxy) -> head) {
-		printf("Not head!\n");
+        printf("Planet out of bounds!\n");
         return;
     }
-    if (planet_index < 0 || planet_index > ( * galaxy) -> galaxy_size) {
-		printf("No index!\n");
+    if (planet_index < 0 || (unsigned int) planet_index > (* galaxy) -> galaxy_size) {
+        printf("Planet out of bounds!\n");
         return;
     }
-	
-    galaxy_object * start = ( * galaxy) -> head;
-    int tmp = planet_index % ( * galaxy) -> galaxy_size;
-    for (int i = 0; i < tmp ; i++) {
-        start = start -> next;
-	}
+    int find_index = planet_index % ( * galaxy) -> galaxy_size;
+    galaxy_object * object_to_print = ( * galaxy) -> head;
+    for (int i = 0; i < find_index; i++)
+        object_to_print = object_to_print -> next;
 
-	((only_data_t*)start->data)->destroyed_planets = ((only_data_t*)start->data)->destroyed_planets + 1;
+    ((only_data_t * ) object_to_print -> next -> data) -> destroyed_planets = ((only_data_t * ) object_to_print -> next -> data) -> destroyed_planets + 1;
 }
 
 // Add a new shield to the planet
@@ -229,27 +227,35 @@ void COL(unsigned int index_planet_1, unsigned int index_planet_2, galaxy_t ** g
     }
 
     galaxy_object * start = ( * galaxy) -> head;
-    if (index_planet_1 > 1) {
-        for (unsigned int i = 0; i < index_planet_1; i++)
-            start = start -> next;
-    }
+    int aux = index_planet_1;
+    for (int i = 0; i < aux; i++)
+        start = start -> next;
 
     int size1 = ((only_data_t * ) start -> data) -> shields_number / 4;
     int size2 = (((only_data_t * ) start -> next -> data) -> shields_number / 4) * 3;
 
     int my_shield1 = DOWN_UPG(index_planet_1, size1, -1, galaxy);
     int my_shield2 = DOWN_UPG(index_planet_2, size2, -1, galaxy);
+
 	if(my_shield1<0 && my_shield1!=-5 && my_shield2<0 && my_shield2!=-5) {
-		BLH_implode(index_planet_2,galaxy,global_size);
+        BLH_implode(index_planet_1,galaxy,global_size);
 		BLH_implode(index_planet_1,galaxy,global_size);
 	} 
 	else if(my_shield1<0 && my_shield1!=-5 && my_shield2 >=0) {
-		BLH_implode(index_planet_1,galaxy,global_size);
-		ADD_KILLS(index_planet_2, galaxy);
+	    BLH_implode(index_planet_1,galaxy,global_size);
+        galaxy_object* new_obj = (*galaxy)->head;
+        int tmp_aux = index_planet_1;
+        for(int i = 0; i<tmp_aux ;i++) 
+            new_obj = new_obj->next;
+        ((only_data_t*)(new_obj->data))->destroyed_planets++;
 	}
 	else if(my_shield1>=0  && my_shield2 <0 && my_shield2 !=-5) {
 		BLH_implode(index_planet_2,galaxy,global_size);
-		ADD_KILLS(index_planet_1, galaxy);
+        galaxy_object* new_obj = (*galaxy)->head;
+        int tmp_aux = index_planet_1;
+        for(int i = 0; i<tmp_aux ;i++) 
+            new_obj = new_obj->next;
+        ((only_data_t*)(new_obj->data))->destroyed_planets++;    
 	}
 }
 
@@ -345,7 +351,7 @@ void SHW(int planet_index, galaxy_t ** galaxy) {
 
     printf("SHIELDS: ");
     dll_print_int_list(((only_data_t * ) object_to_print -> data) -> shield);
-    printf("\nKILLED: %d\n", ((only_data_t * ) object_to_print -> next -> data) -> destroyed_planets);
+    printf("\nKILLED: %d\n", ((only_data_t * ) object_to_print -> data) -> destroyed_planets);
 
 }
 

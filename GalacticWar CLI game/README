@@ -1,0 +1,14 @@
+# Chelcea Claudiu-Marian
+
+The program starts with the creation of the command_list constant pointer
+which holds all the accepted commands.
+Then, the galaxy is created with the dll_create() function.
+
+The most important part of the program is the for loop, which loops for
+'input number' times, a number received from the user and then scans and
+executes 'input number' commands by getting the whole line, then returning
+the command's index in our command_list pointer and, based on that, in a switch
+statement, the right function is called.
+
+In the end the memory is released.
+

@@ -3,7 +3,7 @@
 int main(void) {
     // Get the number of inputs
     int input_number = 0;
-    scanf("%d", & input_number);
+    scanf("%d", &input_number);
     getc(stdin);
 
     // Create the command receiver and the command list
@@ -41,6 +41,12 @@ int main(void) {
         // Execute the command
         execute_command(command_index, command_line, & my_galaxy, &global_size);
     }
+
+    // Release the memory
+    free(command_line);
+    dll_free(&my_galaxy);
+    my_galaxy = NULL;
+    command_line = NULL;
 
     return 0;
 }

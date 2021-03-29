@@ -69,6 +69,6 @@ int return_index(const char * command, const char * command_list[]);
 void dll_print_int_l(galaxy_t * list);
 
 // Release the memory
-void release_galaxy(galaxy_t ** galaxy);
+void release_galaxy(galaxy_t ** galaxy, int global_size);
 
 #endif

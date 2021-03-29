@@ -19,7 +19,7 @@ int main(void)
 	int command_index = 0;
 	int global_size = 0;
 
-	// Create my galaxy
+	// Create the galaxy
 	galaxy_t *my_galaxy = NULL;
 	my_galaxy = dll_create();
 	DIE(!my_galaxy, "Couldn't create the galaxy!\n");

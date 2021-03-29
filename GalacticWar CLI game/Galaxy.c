@@ -136,23 +136,21 @@ void dll_add_nth_node(galaxy_t ** list, unsigned int planet_index,
         galaxy_object * new_object = NULL;
         new_object = malloc(sizeof(galaxy_object));
         DIE(!new_object, "Couldn't chain planets!\n");
-        ( * list) -> head = new_object;
-
+        
         // Allocate the head
         new_object -> next = new_object;
         new_object -> prev = new_object;
         new_object -> data = NULL;
-        only_data_t * my_data = NULL;
-        my_data = malloc(sizeof(only_data_t));
-        DIE(!my_data, "Couldn't chain planets!\n");
+        new_object->data = malloc(sizeof(only_data_t));
+        DIE(!((only_data_t*)(new_object->data)), "Couldn't chain planets!\n");
 
         // Save the data of the head
-        my_data -> shields_number = shields_number;
-        my_data -> destroyed_planets = 0;
-        my_data -> name = NULL;
-        my_data -> name = malloc(NAME_SIZE * sizeof(char));
-        DIE(!my_data -> name, "Couldn't chain planets!\n");
-        strcpy(my_data -> name, planet_name);
+        ((only_data_t*)(new_object->data)) -> shields_number = shields_number;
+        ((only_data_t*)(new_object->data)) -> destroyed_planets = 0;
+        ((only_data_t*)(new_object->data)) -> name = NULL;
+        ((only_data_t*)(new_object->data)) -> name = malloc(NAME_SIZE * sizeof(char));
+        DIE(!((only_data_t*)(new_object->data)) -> name, "Couldn't chain planets!\n");
+        strcpy(((only_data_t*)(new_object->data)) -> name, planet_name);
 
         // Create the shield list
         galaxy_t * shield = NULL;
@@ -161,39 +159,35 @@ void dll_add_nth_node(galaxy_t ** list, unsigned int planet_index,
         int tmp = 1;
         for (int i = 0; i < shields_number; i++)
             dll_add_nth_node_shield(shield, 0, & tmp);
-        my_data -> shield = shield;
-        new_object -> data = my_data;
-        ( * list) -> head = new_object;
+        ((only_data_t*)(new_object->data)) -> shield = shield;
 
-        printf("The planet %s has joined the galaxy.\n", (my_data -> name));
+        printf("The planet %s has joined the galaxy.\n", ( ((only_data_t*)(new_object->data))-> name));
         *global_size = *global_size + 1;
+        ( * list) -> head = new_object;
         return;
         
     } else if (!( * list) -> head) { // If the list doesn't have a head
 
-        ( * list) -> galaxy_size = 1;
-
+        (* list) -> galaxy_size = 1;
         // Create the head of the list
         galaxy_object * new_object = NULL;
         new_object = malloc(sizeof(galaxy_object));
         DIE(!new_object, "Couldn't chain planets!\n");
-        ( * list) -> head = new_object;
-
+       
         // Allocate the head
         new_object -> next = new_object;
         new_object -> prev = new_object;
         new_object -> data = NULL;
-        only_data_t * my_data = NULL;
-        my_data = malloc(sizeof(only_data_t));
-        DIE(!my_data, "Couldn't chain planets!\n");
+        new_object -> data = malloc(sizeof(only_data_t));
+        DIE(!new_object->data, "Couldn't chain planets!\n");
 
         // Save the data of the head
-        my_data -> shields_number = shields_number;
-        my_data -> destroyed_planets = 0;
-        my_data -> name = NULL;
-        my_data -> name = malloc(NAME_SIZE * sizeof(char));
-        DIE(!my_data -> name, "Couldn't chain planets!\n");
-        strcpy(my_data -> name, planet_name);
+        ((only_data_t*)(new_object->data))->shields_number = shields_number;
+        ((only_data_t*)(new_object->data)) -> destroyed_planets = 0;
+        ((only_data_t*)(new_object->data)) -> name = NULL;
+        ((only_data_t*)(new_object->data)) -> name = malloc(NAME_SIZE * sizeof(char));
+        DIE(!((only_data_t*)(new_object->data)) -> name, "Couldn't chain planets!\n");
+        strcpy( ((only_data_t*)(new_object->data)) -> name, planet_name);
 
         // Create the shield list
         galaxy_t * shield = NULL;
@@ -202,11 +196,11 @@ void dll_add_nth_node(galaxy_t ** list, unsigned int planet_index,
         int tmp = 1;
         for (int i = 0; i < shields_number; i++)
             dll_add_nth_node_shield(shield, 0, & tmp);
-        my_data -> shield = shield;
+        ((only_data_t*)(new_object->data)) -> shield = shield;
 
-        new_object -> data = my_data;
-        printf("The planet %s has joined the galaxy.\n", (my_data -> name));
+        printf("The planet %s has joined the galaxy.\n", ( ((only_data_t*)(new_object->data)) -> name));
         *global_size = *global_size + 1;
+         ( * list) -> head = new_object;
 
     } else if (planet_index == 0) { // If we add it as the first item
         // Create the head of the list
@@ -218,17 +212,16 @@ void dll_add_nth_node(galaxy_t ** list, unsigned int planet_index,
         new_object -> next = NULL;
         new_object -> prev = NULL;
         new_object -> data = NULL;
-        only_data_t * my_data = NULL;
-        my_data = malloc(sizeof(only_data_t));
-        DIE(!my_data, "Couldn't chain planets!\n");
+        new_object->data = malloc(sizeof(only_data_t));
+        DIE(!((only_data_t*)(new_object->data)), "Couldn't chain planets!\n");
 
         // Save the data of the head
-        my_data -> shields_number = shields_number;
-        my_data -> destroyed_planets = 0;
-        my_data -> name = NULL;
-        my_data -> name = malloc(NAME_SIZE * sizeof(char));
-        DIE(!my_data -> name, "Couldn't chain planets!\n");
-        strcpy(my_data -> name, planet_name);
+        ((only_data_t*)(new_object->data)) -> shields_number = shields_number;
+        ((only_data_t*)(new_object->data)) -> destroyed_planets = 0;
+        ((only_data_t*)(new_object->data)) -> name = NULL;
+        ((only_data_t*)(new_object->data)) -> name = malloc(NAME_SIZE * sizeof(char));
+        DIE(! ((only_data_t*)(new_object->data)) -> name, "Couldn't chain planets!\n");
+        strcpy( ((only_data_t*)(new_object->data)) -> name, planet_name);
 
         // Create the shield list
         galaxy_t * shield = NULL;
@@ -237,8 +230,7 @@ void dll_add_nth_node(galaxy_t ** list, unsigned int planet_index,
         int tmp = 1;
         for (int i = 0; i < shields_number; i++)
             dll_add_nth_node_shield(shield, 0, & tmp);
-        my_data -> shield = shield;
-        new_object -> data = my_data;
+        ((only_data_t*)(new_object->data)) -> shield = shield;
 
         // Put the new node in the list
         new_object -> next = ( * list) -> head;
@@ -247,30 +239,29 @@ void dll_add_nth_node(galaxy_t ** list, unsigned int planet_index,
         ( * list) -> head -> prev = new_object;
         ( * list) -> head = new_object;
         ( * list) -> galaxy_size++;
-        printf("The planet %s has joined the galaxy.\n", (my_data -> name));
+        printf("The planet %s has joined the galaxy.\n", (((only_data_t*)(new_object->data)) -> name));
         *global_size = *global_size + 1;
 
     } else if ((unsigned int) planet_index >= ( * list) -> galaxy_size) {
         // Create the head of the (*list)
         galaxy_object * new_object = NULL;
-        new_object = malloc(sizeof(galaxy_object));
+        new_object = calloc(1,sizeof(galaxy_object));
         DIE(!new_object, "Couldn't chain planets!\n");
 
         // Allocate the head
         new_object -> next = NULL;
         new_object -> prev = NULL;
         new_object -> data = NULL;
-        only_data_t * my_data = NULL;
-        my_data = malloc(sizeof(only_data_t));
-        DIE(!my_data, "Couldn't chain planets!\n");
+        new_object->data = malloc(sizeof(only_data_t));
+        DIE(!((only_data_t*)(new_object->data)), "Couldn't chain planets!\n");
 
         // Save the data of the head
-        my_data -> shields_number = shields_number;
-        my_data -> destroyed_planets = 0;
-        my_data -> name = NULL;
-        my_data -> name = malloc(NAME_SIZE * sizeof(char));
-        DIE(!my_data -> name, "Couldn't chain planets!\n");
-        strcpy(my_data -> name, planet_name);
+        ((only_data_t*)(new_object->data)) -> shields_number = shields_number;
+        ((only_data_t*)(new_object->data)) -> destroyed_planets = 0;
+        ((only_data_t*)(new_object->data)) -> name = NULL;
+        ((only_data_t*)(new_object->data)) -> name = malloc(NAME_SIZE * sizeof(char));
+        DIE(!((only_data_t*)(new_object->data)) -> name, "Couldn't chain planets!\n");
+        strcpy(((only_data_t*)(new_object->data)) -> name, planet_name);
 
         // Create the shield (*list)
         galaxy_t * shield = NULL;
@@ -279,8 +270,7 @@ void dll_add_nth_node(galaxy_t ** list, unsigned int planet_index,
         int tmp = 1;
         for (int i = 0; i < shields_number; i++)
             dll_add_nth_node_shield(shield, 0, & tmp);
-        my_data -> shield = shield;
-        new_object -> data = my_data;
+        ((only_data_t*)(new_object->data)) -> shield = shield;
 
         // Put the new node in the (*list)
         new_object -> prev = ( * list) -> head -> prev;
@@ -288,7 +278,7 @@ void dll_add_nth_node(galaxy_t ** list, unsigned int planet_index,
         new_object -> next = ( * list) -> head;
         ( * list) -> head -> prev = new_object;
         ( * list) -> galaxy_size++;
-        printf("The planet %s has joined the galaxy.\n", (my_data -> name));
+        printf("The planet %s has joined the galaxy.\n", (((only_data_t*)(new_object->data)) -> name));
         *global_size = *global_size + 1;
 
     } else { // Remove it from somewhere between the nodes
@@ -301,27 +291,25 @@ void dll_add_nth_node(galaxy_t ** list, unsigned int planet_index,
         new_object -> next = NULL;
         new_object -> prev = NULL;
         new_object -> data = NULL;
-        only_data_t * my_data = NULL;
-        my_data = malloc(sizeof(only_data_t));
-        DIE(!my_data, "Couldn't chain planets!\n");
+        new_object->data = malloc(sizeof(only_data_t));
+        DIE(!((only_data_t*)(new_object->data)), "Couldn't chain planets!\n");
 
         // Save the data of the head
-        my_data -> shields_number = shields_number;
-        my_data -> destroyed_planets = 0;
-        my_data -> name = NULL;
-        my_data -> name = malloc(NAME_SIZE * sizeof(char));
-        DIE(!my_data -> name, "Couldn't chain planets!\n");
-        strcpy(my_data -> name, planet_name);
+        ((only_data_t*)(new_object->data)) -> shields_number = shields_number;
+        ((only_data_t*)(new_object->data)) -> destroyed_planets = 0;
+        ((only_data_t*)(new_object->data)) -> name = NULL;
+        ((only_data_t*)(new_object->data)) -> name = malloc(NAME_SIZE * sizeof(char));
+        DIE(!((only_data_t*)(new_object->data)) -> name, "Couldn't chain planets!\n");
+        strcpy(((only_data_t*)(new_object->data)) -> name, planet_name);
 
-        // Create the shield (*list)
+        // Create the shield list
         galaxy_t * shield = NULL;
         shield = dll_create();
         DIE(!shield, "Couldn't create planet's shields!");
         int tmp = 1;
         for (int i = 0; i < shields_number; i++)
             dll_add_nth_node_shield(shield, 0, & tmp);
-        my_data -> shield = shield;
-        new_object -> data = my_data;
+        ((only_data_t*)(new_object->data)) -> shield = shield;
 
         // Put the new node in the (*list)
         galaxy_object * start = ( * list) -> head;
@@ -334,7 +322,7 @@ void dll_add_nth_node(galaxy_t ** list, unsigned int planet_index,
         start -> next -> prev = new_object;
         start -> next = new_object;
         ( * list) -> galaxy_size++;
-        printf("The planet %s has joined the galaxy.\n", (my_data -> name));
+        printf("The planet %s has joined the galaxy.\n", (((only_data_t*)(new_object->data))-> name));
         *global_size = *global_size + 1;
     }
 }
@@ -816,7 +804,6 @@ void dll_print_int_list(galaxy_t * list) {
         start = start -> next;
     }
     while (start != list -> head);
-
 }
 
 // Print string list

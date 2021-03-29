@@ -26,6 +26,7 @@ void execute_command(const int command_index, char * command_line, galaxy_t ** g
                 return;
             }
             ADD(planet_name, planet_index, shields_number, galaxy, global_size);
+            free(planet_name);
             break;
         case 1:
             sscanf(command_line, "%s%d", received_command, & planet_index);
@@ -102,7 +103,7 @@ void UPG(unsigned int planet_index, unsigned int shield_index, unsigned
         start = start -> next;
 
     // Verify the shield's index
-    if (shield_index < 0 || shield_index >= ((only_data_t * ) start -> data) -> shields_number) {
+    if (shield_index < 0 || shield_index >= ((only_data_t *) start -> data) -> shields_number) {
         printf("Shield out of bounds!\n");
         return;
     }
@@ -198,7 +199,6 @@ void EXP(unsigned int planet_index, unsigned int shield_value, galaxy_t ** galax
     for (int i = 0; i < tmp; i++)
         start = start -> next;
 
-    
     // Add the shield to the end of the shields list
     int last = ((only_data_t * )(start -> data)) -> shields_number + 2;
     galaxy_t * new_start = ((only_data_t * )(start -> data)) -> shield;
@@ -410,4 +410,89 @@ int return_index(const char * command, const char * command_list[])
         if (strcmp(command, command_list[i]) == 0)
             return i;
     return -1;
+}
+
+// Release the memory
+void release_galaxy(galaxy_t ** galaxy)
+{
+    if(!galaxy)
+        return;
+    else if(!(*galaxy)->head) {
+        free(*galaxy);
+        *galaxy = NULL;
+    }
+    else {
+        // If we have only one item
+        int tmp = (*galaxy)->galaxy_size;
+        if(tmp == 1) {
+            // Free the shields
+            galaxy_object* prev= NULL;
+            galaxy_object* start = ((only_data_t*)((*galaxy)->head->data))->shield->head->prev;
+            while(start != ((only_data_t*)((*galaxy)->head->data))->shield->head) {
+                prev = start;
+                start = start->prev;
+                free(prev->data);
+                prev->next = NULL;
+                prev->prev = NULL;
+                prev->data = NULL;
+                free(prev);
+                prev = NULL;
+            }
+            // Free all data of the planet
+            free(((only_data_t*)((*galaxy)->head->data))->shield->head->data);
+            ((only_data_t*)((*galaxy)->head->data))->shield->head->data = NULL;
+            free(((only_data_t*)((*galaxy)->head->data))->shield->head);
+            ((only_data_t*)((*galaxy)->head->data))->shield->head = NULL;
+            free(((only_data_t*)((*galaxy)->head->data))->shield);
+            ((only_data_t*)((*galaxy)->head->data))->shield = NULL;
+            free(((only_data_t*)((*galaxy)->head->data))->name);
+            ((only_data_t*)((*galaxy)->head->data))->name = NULL;
+            free(((only_data_t*)((*galaxy)->head->data)));
+            ((*galaxy)->head->data) = NULL;
+
+            // Free the galaxy list
+            free(((only_data_t*)((*galaxy)->head)));
+            ((*galaxy)->head) =NULL;
+            free(*galaxy);
+            *galaxy = NULL;
+        } else {
+            // Destroy more planets
+            galaxy_object* newplanet = (*galaxy)->head;
+            galaxy_object* prevplanet = NULL;
+            for(int i=0;i<tmp;i++) {
+                prevplanet = newplanet;
+                newplanet = newplanet->next;
+
+                // Free the shields
+                galaxy_object* prev= NULL;
+                galaxy_object* start = ((only_data_t*)(prevplanet->data))->shield->head->prev;
+                while(start != ((only_data_t*)(prevplanet->data))->shield->head) {
+                    prev = start;
+                    start = start->prev;
+                    free(prev->data);
+                    prev->next = NULL;
+                    prev->prev = NULL;
+                    prev->data = NULL;
+                    free(prev);
+                    prev = NULL;
+                }
+                 // Free all data of the planet
+                free(((only_data_t*)(prevplanet->data))->shield->head->data);
+                ((only_data_t*)(prevplanet->data))->shield->head->data = NULL;
+                free(((only_data_t*)(prevplanet->data))->shield->head);
+                ((only_data_t*)(prevplanet->data))->shield->head = NULL;
+                free(((only_data_t*)(prevplanet->data))->shield);
+                ((only_data_t*)(prevplanet->data))->shield = NULL;
+                free(((only_data_t*)(prevplanet->data))->name);
+                ((only_data_t*)(prevplanet->data))->name = NULL;
+                free(((only_data_t*)(prevplanet->data)));
+                (prevplanet->data) = NULL;
+            }
+            // Free the galaxy list
+            free(((only_data_t*)((*galaxy)->head)));
+            ((*galaxy)->head) =NULL;
+            free(*galaxy);
+            *galaxy = NULL;
+        }   
+    }
 }

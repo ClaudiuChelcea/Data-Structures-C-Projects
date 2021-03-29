@@ -4,9 +4,7 @@
 void execute_command(const int command_index, char * command_line, galaxy_t ** galaxy, int* global_size)
 {
     char received_command[4];
-    char * planet_name = NULL;
-    planet_name = malloc(NAME_SIZE * sizeof(char));
-    DIE(!planet_name, "Didn't receive planet name correctly!\n");
+    char planet_name[NAME_SIZE];
     int planet_index = 0;
     int shields_number = 0;
     int shield_index = 0;
@@ -26,7 +24,6 @@ void execute_command(const int command_index, char * command_line, galaxy_t ** g
                 return;
             }
             ADD(planet_name, planet_index, shields_number, galaxy, global_size);
-            free(planet_name);
             break;
         case 1:
             sscanf(command_line, "%s%d", received_command, & planet_index);
@@ -370,7 +367,8 @@ void SHW(int planet_index, galaxy_t ** galaxy)
 
     // Find the planet
     int find_index = planet_index % ( * galaxy) -> galaxy_size;
-    galaxy_object * object_to_print = ( * galaxy) -> head;
+    galaxy_object * object_to_print = NULL;
+    object_to_print = ( * galaxy) -> head;
     for (int i = 0; i < find_index; i++)
         object_to_print = object_to_print -> next;
 
@@ -413,7 +411,7 @@ int return_index(const char * command, const char * command_list[])
 }
 
 // Release the memory
-void release_galaxy(galaxy_t ** galaxy)
+void release_galaxy(galaxy_t ** galaxy, int global_size)
 {
     if(!galaxy)
         return;
@@ -423,7 +421,7 @@ void release_galaxy(galaxy_t ** galaxy)
     }
     else {
         // If we have only one item
-        int tmp = (*galaxy)->galaxy_size;
+        int tmp = global_size;
         if(tmp == 1) {
             // Free the shields
             galaxy_object* prev= NULL;
@@ -459,14 +457,17 @@ void release_galaxy(galaxy_t ** galaxy)
             // Destroy more planets
             galaxy_object* newplanet = (*galaxy)->head;
             galaxy_object* prevplanet = NULL;
-            for(int i=0;i<tmp;i++) {
+
+            // Main for, delete each planet
+            for(int i=0;i<global_size;i++) {
                 prevplanet = newplanet;
                 newplanet = newplanet->next;
 
                 // Free the shields
                 galaxy_object* prev= NULL;
                 galaxy_object* start = ((only_data_t*)(prevplanet->data))->shield->head->prev;
-                while(start != ((only_data_t*)(prevplanet->data))->shield->head) {
+                int aux = ((only_data_t*)(prevplanet->data))->shields_number;
+                for(int i = 0; i < aux; i++) {
                     prev = start;
                     start = start->prev;
                     free(prev->data);
@@ -476,20 +477,17 @@ void release_galaxy(galaxy_t ** galaxy)
                     free(prev);
                     prev = NULL;
                 }
-                 // Free all data of the planet
-                free(((only_data_t*)(prevplanet->data))->shield->head->data);
-                ((only_data_t*)(prevplanet->data))->shield->head->data = NULL;
-                free(((only_data_t*)(prevplanet->data))->shield->head);
-                ((only_data_t*)(prevplanet->data))->shield->head = NULL;
+                // Free all data of the planet
                 free(((only_data_t*)(prevplanet->data))->shield);
                 ((only_data_t*)(prevplanet->data))->shield = NULL;
                 free(((only_data_t*)(prevplanet->data))->name);
                 ((only_data_t*)(prevplanet->data))->name = NULL;
                 free(((only_data_t*)(prevplanet->data)));
                 (prevplanet->data) = NULL;
+                free(prevplanet);
+                prevplanet = NULL;
             }
             // Free the galaxy list
-            free(((only_data_t*)((*galaxy)->head)));
             ((*galaxy)->head) =NULL;
             free(*galaxy);
             *galaxy = NULL;

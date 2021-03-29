@@ -44,9 +44,8 @@ int main(void) {
 
     // Release the memory
     free(command_line);
-    dll_free(&my_galaxy);
-    my_galaxy = NULL;
     command_line = NULL;
+    release_galaxy(&my_galaxy);
 
     return 0;
 }

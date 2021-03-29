@@ -45,7 +45,7 @@ int main(void) {
     // Release the memory
     free(command_line);
     command_line = NULL;
-    release_galaxy(&my_galaxy);
+    release_galaxy(&my_galaxy, global_size);
 
     return 0;
 }

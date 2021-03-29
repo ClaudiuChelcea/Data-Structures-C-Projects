@@ -798,7 +798,7 @@ void dll_remove_nth_node_implode(galaxy_t **list, unsigned int n,
 		return;
 	} else if ((*list)->head->next ==
 			   (*list)->head) {  // If we have only one item
-		printf("The planet %s has imploded\n",
+		printf("The planet %s has imploded.\n",
 			   ((only_data_t *)(*list)->head->data)->name);
 
 		*global_size = *global_size - 1;

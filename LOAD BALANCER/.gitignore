@@ -1,0 +1,7 @@
+loadApp
+*.o
+*.h.gch
+*.in
+*.ref
+
+

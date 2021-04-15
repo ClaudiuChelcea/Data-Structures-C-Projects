@@ -2,13 +2,15 @@ CC=gcc
 CFLAGS=-Wall -Wextra
 LOAD=load_balancer
 SERVER=server
+CLIENT=client
+NAME=loadApp
 
 .PHONY: build clean
 
-build: tema2
+build: app
 
-tema2: main.o $(LOAD).o $(SERVER).o
-	$(CC) $^ -o $@
+app: main.o $(LOAD).o $(SERVER).o $(CLIENT).o
+	$(CC) $^ -o $(NAME)
 
 main.o: main.c
 	$(CC) $(CFLAGS) $^ -c
@@ -19,5 +21,8 @@ $(SERVER).o: $(SERVER).c $(SERVER).h
 $(LOAD).o: $(LOAD).c $(LOAD).h
 	$(CC) $(CFLAGS) $^ -c
 
+$(CLIENT).o: $(CLIENT).c $(CLIENT).h
+	$(CC) $(CFLAGS) $^ -c
+
 clean:
-	rm -f *.o tema2 *.h.gch
+	rm -f *.o $(NAME) *.h.gch

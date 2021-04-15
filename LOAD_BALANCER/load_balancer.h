@@ -3,6 +3,7 @@
 #define LOAD_BALANCER_H_
 
 #include "server.h"
+#include "client.h"
 
 struct load_balancer;
 typedef struct load_balancer load_balancer;

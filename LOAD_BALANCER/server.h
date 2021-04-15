@@ -1,4 +1,4 @@
-/* Copyright 2021 <> */
+/* Copyright Chelcea Claudiu-Marian */
 #ifndef SERVER_H_
 #define SERVER_H_
 

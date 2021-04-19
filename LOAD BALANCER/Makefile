@@ -2,7 +2,7 @@
 
 # Seti[
 CC=gcc
-CFLAGS=-Wall -Wextra
+CFLAGS=-Wall -Wextra -g
 LOAD=load_balancer
 SERVER=server
 CLIENT=client

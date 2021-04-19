@@ -4,7 +4,7 @@
 #define REQUEST_LENGTH 1024
 #define KEY_LENGTH 128
 #define VALUE_LENGTH 65536
-#define MAX_SERVERS 99999
+#define REPLICA 100000
 
 #include "utils.h"
 #include "server.h"
@@ -13,7 +13,9 @@
 
 typedef struct load_balancer
 {
-    linked_list_t* servers;
+    server_pointer** hashring;
+    int num_servers;
+    int current_servers;
 } load_balancer_t;
 
 typedef struct load_balancer load_balancer;

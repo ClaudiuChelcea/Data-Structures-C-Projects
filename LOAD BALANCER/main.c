@@ -7,15 +7,21 @@
 
 int main(int argc, char* argv[])
 {
+	// FILE *input = NULL;
+
+	// // Get file
+	// if (argc != 2) {
+	// 	printf("Usage:%s input_file \n", argv[0]);
+	// 	return -1;
+	// }
+
+	// input = fopen(argv[1], "rt");
+	// DIE(input == NULL, "missing input file");
+
+
 	FILE *input = NULL;
 
-	// Get file
-	if (argc != 2) {
-		printf("Usage:%s input_file \n", argv[0]);
-		return -1;
-	}
-
-	input = fopen(argv[1], "rt");
+	input = fopen("in", "rt");
 	DIE(input == NULL, "missing input file");
 
 	// Execute command

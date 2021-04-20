@@ -3,7 +3,7 @@
 #include <string.h>
 #include "load_balancer.h"
 #define STARTING_SERVERS 10
-#define MAX_SERVER_ITEMS 100
+#define MAX_SERVER_ITEMS 1000
 #define MAX_SERVER_OBJECT 64
 
 unsigned int hash_function_servers(void *a) {
@@ -47,7 +47,7 @@ load_balancer* init_load_balancer() {
         my_load_balancer->hashring[i]->server_index = -1;
         my_load_balancer->hashring[i]->server_label = -1;
         my_load_balancer->server_items[i] = malloc(sizeof(MAX_SERVER_ITEMS * sizeof(char*)));
-        for(int j=0;j<MAX_SERVER_ITEMS;j++) {
+        for(int j=0;j<MAX_SERVER_ITEMS-1;j++) {
             my_load_balancer->server_items[i][j] = malloc(MAX_SERVER_OBJECT * sizeof(char));
         }
     }
@@ -59,12 +59,77 @@ load_balancer* init_load_balancer() {
 // Stores a product (key - ID, value - product name) on one of the
 // available servers using Consistent Hashing.
 void loader_store(load_balancer* main, char* key, char* value, int* server_id) {
-	/* TODO. */
+    // Check for the existence of the load balancer
+    if(!main)
+        return;
+
+    // Get hash value of the key
+	unsigned int key_hash = hash_function_key(key);
+    printf("%u\n\n",key_hash);
+    
+    int found_server = -1;
+    // Get the server to store the data on
+    for(int i=0;i<main->current_hashring_items;i++) {
+        if(key_hash <= hash_function_servers(&main->hashring[i]->server_label)) {
+            found_server = i;
+            break;
+        }
+    }
+
+    // If we didn't find any server,
+    // by the circular logic we will put the element on the first server
+    if(found_server == -1) {
+        // Get value's index
+        unsigned int value_index = key_hash % MAX_SERVER_ITEMS;
+
+        // Add to first server
+        strcpy(main->server_items[0][value_index],value);
+    }
+    else {
+         // Get value's index
+        unsigned int value_index = key_hash % MAX_SERVER_ITEMS;
+
+        // Add to certain server
+        strcpy(main->server_items[found_server][value_index],value);
+    }
 }
 
 // Calculates on which server the key is stored and extracts its value.
 char* loader_retrieve(load_balancer* main, char* key, int* server_id) {
-	/* TODO. */
+	// Check for the existence of the load balancer
+    if(!main)
+        return NULL;
+
+    // Get hash value of the key
+	unsigned int key_hash = hash_function_key(key);
+    
+    *server_id = -1;
+    // Get the server to store the data on
+    for(int i=0;i<main->current_hashring_items;i++) {
+        if(key_hash <= hash_function_servers(&main->hashring[i]->server_label)) {
+            *server_id = i;
+            break;
+        }
+    }
+
+    // If we didn't find any server,
+    // by the circular logic we will search the first server
+    if(*server_id == -1) {
+        // Get value's index
+        unsigned int value_index = key_hash % MAX_SERVER_ITEMS;
+        *server_id = 0;
+
+        // Return the found value
+        return main->server_items[0][value_index];
+    }
+    else {
+        // Get value's index
+        unsigned int value_index = key_hash % MAX_SERVER_ITEMS;
+
+        /// Return the found value
+        return main->server_items[*server_id][value_index];
+    }
+    
 	return NULL;
 }
 

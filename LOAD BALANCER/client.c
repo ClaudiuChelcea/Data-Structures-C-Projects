@@ -106,7 +106,6 @@ void apply_requests(FILE* input_file)
 	}
 	printf("SERVERS: %d\n", main_server->current_hashring_items/3);
 
-	
 	// Release memory
 	free_load_balancer(main_server);
 }

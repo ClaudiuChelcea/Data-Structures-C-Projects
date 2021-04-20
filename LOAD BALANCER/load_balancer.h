@@ -15,12 +15,16 @@ typedef struct load_balancer
 {
     server_pointer** hashring;
     int num_servers;
-    int current_servers;
+    int current_hashring_items;
+    char*** server_items;
 } load_balancer_t;
 
 typedef struct load_balancer load_balancer;
 
 load_balancer* init_load_balancer();
+unsigned int hash_function_servers(void *a);
+unsigned int hash_function_key(void *a);
+
 
 void free_load_balancer(load_balancer* main);
 

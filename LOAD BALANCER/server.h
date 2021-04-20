@@ -1,11 +1,17 @@
 /* Copyright Chelcea Claudiu-Marian */
 #ifndef SERVER_H_
 #define SERVER_H_
+#define SERVER_MAX_ITEMS 10000
 
 typedef struct server_memory server_memory;
 
+typedef struct server_pointer {
+	int server_index;
+	int server_label;
+} server_pointer;
+
 struct server_memory {
-	/* TODO */
+	char** stored_values;
 };
 
 server_memory* init_server_memory();

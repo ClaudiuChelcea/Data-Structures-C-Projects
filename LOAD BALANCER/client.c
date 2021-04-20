@@ -99,6 +99,13 @@ void apply_requests(FILE* input_file)
 			DIE(1, "unknown function call");
 		}
 	}
+
+	for(int i=0;i<main_server->current_hashring_items;i++)	{
+		printf("SERVER: %d LABEL:%d LABEL_HASH:%u\n",main_server->hashring[i]->server_index,main_server->hashring[i]->server_label,hash_function_servers(&main_server->hashring[i]->server_label));
+		
+	}
+	printf("SERVERS: %d\n", main_server->current_hashring_items/3);
+
 	// Release memory
 	free_load_balancer(main_server);
 }

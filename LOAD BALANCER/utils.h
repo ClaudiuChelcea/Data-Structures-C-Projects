@@ -1,4 +1,4 @@
-/* Copyright 2021 <> */
+/* Copyright Chelcea Claudiu-Marian */
 #ifndef UTILS_H_
 #define UTILS_H_
 
@@ -14,6 +14,6 @@
             perror(call_description);                                          \
             exit(errno);                                                       \
         }                                                                      \
-    } while (0)
+    } while (0);
 
 #endif /* UTILS_H_ */

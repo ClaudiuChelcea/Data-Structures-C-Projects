@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
 
 	FILE *input = NULL;
 
-	input = fopen("in2", "rt");
+	input = fopen("in", "rt");
 	DIE(input == NULL, "missing input file");
 
 	// Execute command

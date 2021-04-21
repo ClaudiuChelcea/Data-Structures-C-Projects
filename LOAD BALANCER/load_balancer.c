@@ -244,22 +244,22 @@ void add_server_by_label(load_balancer* main, int server_label, int server_id, i
         main->current_hashring_items = main->current_hashring_items + 1;
 
         // Rebalance
-            for(int i=0;i < MAX_SERVER_ITEMS-1; i++) {
-                // Get all items on the server
-                if(strcmp(main->load_balancer_data[main->current_hashring_items-1][i]->server_items, "") !=0 &&
-                isalpha(main->load_balancer_data[main->current_hashring_items-1][i]->server_items[0])) {
+        for(int i=0;i < MAX_SERVER_ITEMS-1; i++) {
+            // Get all items on the server
+            if(strcmp(main->load_balancer_data[main->current_hashring_items-1][i]->server_items, "") !=0 &&
+            isalpha(main->load_balancer_data[main->current_hashring_items-1][i]->server_items[0])) {
 
-                    // Get the current server's hash
-                    unsigned int key_hash = hash_function_key(&main->load_balancer_data[main->current_hashring_items][i]->server_keys);
-                
-                    if(key_hash < label__hash) {
-                        strcpy(main->load_balancer_data[server_index][key_hash % MAX_SERVER_ITEMS]->server_items,main->load_balancer_data[main->current_hashring_items][i]->server_items);
-                        strcpy(main->load_balancer_data[server_index][key_hash % MAX_SERVER_ITEMS]->server_keys,main->load_balancer_data[main->current_hashring_items][i]->server_keys);
-                        strncpy(main->load_balancer_data[main->current_hashring_items][i]->server_keys,"",1);
-                        strncpy(main->load_balancer_data[main->current_hashring_items][i]->server_items,"",1);
-                    }
+                // Get the current server's hash
+                unsigned int key_hash = hash_function_key(&main->load_balancer_data[main->current_hashring_items][i]->server_keys);
+            
+                if(key_hash < label__hash) {
+                    strcpy(main->load_balancer_data[server_index][key_hash % MAX_SERVER_ITEMS]->server_items,main->load_balancer_data[main->current_hashring_items][i]->server_items);
+                    strcpy(main->load_balancer_data[server_index][key_hash % MAX_SERVER_ITEMS]->server_keys,main->load_balancer_data[main->current_hashring_items][i]->server_keys);
+                    strncpy(main->load_balancer_data[main->current_hashring_items][i]->server_keys,"",1);
+                    strncpy(main->load_balancer_data[main->current_hashring_items][i]->server_items,"",1);
                 }
             }
+        }
     }
 }
 

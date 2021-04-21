@@ -6,13 +6,12 @@ CFLAGS=-Wall -Wextra -g
 LOAD=load_balancer
 SERVER=server
 CLIENT=client
-LIST=linkedlist
 NAME=loadApp
 
 # Main call
 build: app
 
-app: main.o $(LOAD).o $(SERVER).o $(CLIENT).o $(LIST).o
+app: main.o $(LOAD).o $(SERVER).o $(CLIENT).o
 	$(CC) $^ -o $(NAME)
 
 main.o: main.c
@@ -25,9 +24,6 @@ $(LOAD).o: $(LOAD).c $(LOAD).h
 	$(CC) $(CFLAGS) $^ -c
 
 $(CLIENT).o: $(CLIENT).c $(CLIENT).h
-	$(CC) $(CFLAGS) $^ -c
-
-$(LIST).o: $(LIST).c $(LIST).h
 	$(CC) $(CFLAGS) $^ -c
 
 

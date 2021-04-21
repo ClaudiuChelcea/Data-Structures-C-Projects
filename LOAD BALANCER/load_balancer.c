@@ -249,35 +249,36 @@ void loader_add_server(load_balancer* main, int server_id) {
 }
 
 // Remove a server from the load balancer
-void remove_server_replica(load_balancer* main, int index_replica_id, int server_id)
+void move_server_items(load_balancer* main, int index_replica_id, int server_id)
 {
+   // print_server(main,server_id);
+    
     // Move all elements to the next server in the hash ring
     for(int i=0;i < MAX_SERVER_ITEMS-1; i++) {
         // Get all items on the server
         if(strcmp(main->load_balancer_data[main->hashring[index_replica_id]->server_index][i]->server_items, "") !=0 &&
-         isalpha(main->load_balancer_data[main->hashring[index_replica_id]->server_index][i]->server_items[0])) {
-            // Rellocate them on the next 
-            printf("Am intrat!\n\n\n\n\n");
-            int index_new_server = -1;
-            int found_count = -1;
+           isalpha(main->load_balancer_data[main->hashring[index_replica_id]->server_index][i]->server_items[0])) {
 
+            // Rellocate them on the next server
+            int index_new_server = -1;
+         
             // Get the current server's hash
             unsigned int key_hash = hash_function_key(&main->load_balancer_data[main->hashring[index_replica_id]->server_index][i]->server_keys);
-
+           
             // Find the first server bigger than him
-            for(int j=0;j<main->current_hashring_items;j++) {
-                if(key_hash < hash_function_key(&main->hashring[j]->server_label)) {
-                    found_count++;
-                    // Find the second biggest server, so we skip the actual server
-                    if(found_count == 1) {
-                        index_new_server = j;
-                        break;
-                    }
+            for(int j=index_replica_id;j<main->current_hashring_items;j++) {
+                // printf("ASTA %x VS %x\n\n",key_hash,hash_function_servers(&main->hashring[j]->server_label));
+                if(server_id == main->hashring[j]->server_index)
+                    continue;
+                if(key_hash < hash_function_servers(&main->hashring[j]->server_label)) {
+                    index_new_server = j;
+                    break;
                 }
-            }
+            } 
+           
             // If found is -1, by the circular logic we add it to the first server, if it exists
             // otherwise we add it to the requested server
-            if(index_new_server == -1) {
+            if(index_new_server == -1 && main->current_hashring_items / 3 > 0) {
                 strcpy(main->load_balancer_data[0][key_hash % MAX_SERVER_ITEMS]->server_items,main->load_balancer_data[main->hashring[index_replica_id]->server_index][i]->server_items);
                 strcpy(main->load_balancer_data[0][key_hash % MAX_SERVER_ITEMS]->server_keys,main->load_balancer_data[main->hashring[index_replica_id]->server_index][i]->server_keys);
                 strncpy(main->load_balancer_data[main->hashring[index_replica_id]->server_index][i]->server_keys,"",1);
@@ -287,20 +288,71 @@ void remove_server_replica(load_balancer* main, int index_replica_id, int server
             }
             else {
                 printf("Moved to server %d\n", main->hashring[index_new_server]->server_index);
-                strcpy(main->load_balancer_data[main->hashring[index_new_server]->server_label][key_hash % MAX_SERVER_ITEMS]->server_items,main->load_balancer_data[main->hashring[index_replica_id]->server_index][i]->server_items);
-                strcpy(main->load_balancer_data[main->hashring[index_new_server]->server_label][key_hash % MAX_SERVER_ITEMS]->server_keys,main->load_balancer_data[main->hashring[index_replica_id]->server_index][i]->server_keys);
+                strcpy(main->load_balancer_data[main->hashring[index_new_server]->server_index][key_hash % MAX_SERVER_ITEMS]->server_items,main->load_balancer_data[main->hashring[index_replica_id]->server_index][i]->server_items);
+                strcpy(main->load_balancer_data[main->hashring[index_new_server]->server_index][key_hash % MAX_SERVER_ITEMS]->server_keys,main->load_balancer_data[main->hashring[index_replica_id]->server_index][i]->server_keys);
                 strncpy(main->load_balancer_data[main->hashring[index_replica_id]->server_index][i]->server_keys,"",1);
                 strncpy(main->load_balancer_data[main->hashring[index_replica_id]->server_index][i]->server_items,"",1);
             }
            // printf("%s\n",main->server_items[index_replica_id][i]);
         }
      }
-
-    // Remove server
+}
+// Remove a server from the load balancer
+void destroy_replica(load_balancer* main, int index_replica_id)
+{
+  // Remove server
     for(int i = index_replica_id;i<main->current_hashring_items;i++)
         main->hashring[i] = main->hashring[i+1];
 
     main->current_hashring_items -=1;    
+}
+
+// Delete all replicas and the server
+void delete_all_replicas(load_balancer* main, int index_replica_id_0, int index_replica_id_1, int index_replica_id_2, int server_id)
+{
+    if(index_replica_id_0 > index_replica_id_1 && index_replica_id_0 > index_replica_id_2 && index_replica_id_1 > index_replica_id_2) { // 3 2 1
+        
+        // Rebalance items and destroy replica
+        move_server_items(main,index_replica_id_0,server_id);
+        destroy_replica(main, index_replica_id_0);
+        destroy_replica(main, index_replica_id_1);
+        destroy_replica(main, index_replica_id_2);
+   }
+   else if(index_replica_id_0 > index_replica_id_1 && index_replica_id_0 > index_replica_id_2 && index_replica_id_1 < index_replica_id_2) { // 3 1 2
+   // Rebalance items and destroy replica
+        move_server_items(main,index_replica_id_0,server_id);
+        destroy_replica(main, index_replica_id_0);
+        destroy_replica(main, index_replica_id_2);
+        destroy_replica(main, index_replica_id_1);
+   }
+   else if(index_replica_id_0 < index_replica_id_1 && index_replica_id_0 > index_replica_id_2 && index_replica_id_1 > index_replica_id_2) { // 2 3 1
+   // Rebalance items and destroy replica
+        move_server_items(main,index_replica_id_1,server_id);
+        destroy_replica(main, index_replica_id_1);
+        destroy_replica(main, index_replica_id_0);
+        destroy_replica(main, index_replica_id_2);
+   }
+   else if(index_replica_id_0 < index_replica_id_2 && index_replica_id_0 > index_replica_id_1 && index_replica_id_1 < index_replica_id_2) { // 2 1 3
+   // Rebalance items and destroy replica
+        move_server_items(main,index_replica_id_2,server_id);
+        destroy_replica(main, index_replica_id_2);
+        destroy_replica(main, index_replica_id_0);
+        destroy_replica(main, index_replica_id_1);
+   }
+   else if(index_replica_id_0 < index_replica_id_1 && index_replica_id_0 < index_replica_id_2 && index_replica_id_1 > index_replica_id_2) { // 1 3 2
+   // Rebalance items and destroy replica
+        move_server_items(main,index_replica_id_1,server_id);
+        destroy_replica(main, index_replica_id_1);
+        destroy_replica(main, index_replica_id_2);
+        destroy_replica(main, index_replica_id_0);
+   }
+   else if(index_replica_id_0 < index_replica_id_1 && index_replica_id_0 < index_replica_id_2 && index_replica_id_1 < index_replica_id_2) { // 1 2 3
+        // Rebalance items and destroy replica
+        move_server_items(main,index_replica_id_2,server_id);
+        destroy_replica(main, index_replica_id_2);
+        destroy_replica(main, index_replica_id_1);
+        destroy_replica(main, index_replica_id_0);
+   }
 }
 
 // Removes a server from the system and rebalances the objects.
@@ -332,14 +384,18 @@ void loader_remove_server(load_balancer* main, int server_id) {
     
     
     // Remove server and rebalance server's elements
-   //remove_server_replica(main, index_replica_id_0, server_id);
+   //move_server_items(main, index_replica_id_0, server_id);
   // remove_server_replica(main, index_replica_id_1, server_id);
-   //remove_server_replica(main, index_replica_id_2, server_id);
+   //remove_server_replica(main, index_replica_id_2, server_id); 3 2 1 3 1 2
+   delete_all_replicas(main,index_replica_id_0,index_replica_id_1,index_replica_id_2, server_id);
 }
 
 // Print a server's items
 void print_server(load_balancer* main, int server_id)
 {
+    if(!main->load_balancer_data[server_id])
+        return;
+
     // Get all items
     for(int i=0;i<MAX_SERVER_ITEMS-1;i++) {
         // If item exists, print it

@@ -102,14 +102,17 @@ void apply_requests(FILE* input_file)
 		}
 	}
 
-	//for(int i=0;i<main_server->current_hashring_items;i++)	{
-	//	printf("SERVER: %d LABEL:%d LABEL_HASH:%x\n",main_server->hashring[i]->server_index,main_server->hashring[i]->server_label,hash_function_servers(&main_server->hashring[i]->server_label));
+	for(int i=0;i<main_server->current_hashring_items;i++)	{
+		printf("SERVER: %d LABEL:%d LABEL_HASH:%x\n",main_server->hashring[i]->server_index,main_server->hashring[i]->server_label,hash_function_servers(&main_server->hashring[i]->server_label));
 		
-	//}
+	}
 
-	//print_server(main_server,0);
-	//print_server(main_server,1);
-	//print_server(main_server,2);
+	printf("SERVERS===============000000\n");
+	print_server(main_server,0);
+	printf("SERVERS===============111111\n");
+	print_server(main_server,1);
+	printf("SERVERS===============222222\n");
+	print_server(main_server,2);
 	// printf("SERVERS: %d\n", main_server->current_hashring_items/3);
 	// for(int i=0;i<MAX_SERVER_ITEMS;i++) {
 	// 	if(isalpha(main_server->server_items[0][i][0]))

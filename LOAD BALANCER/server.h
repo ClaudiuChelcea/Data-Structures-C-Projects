@@ -1,7 +1,7 @@
 /* Copyright Chelcea Claudiu-Marian */
 #ifndef SERVER_H_
 #define SERVER_H_
-#define SERVER_MAX_ITEMS 10000
+#define MAX_SERVER_ITEMS 1000
 
 typedef struct server_memory server_memory;
 

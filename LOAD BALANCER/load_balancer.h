@@ -11,13 +11,21 @@
 #include "client.h"
 #include "linkedlist.h"
 
+typedef struct lb_data
+{
+    char server_items[VALUE_LENGTH];
+    char server_keys[VALUE_LENGTH];
+} lb_data_t;
+
+
 typedef struct load_balancer
 {
     server_pointer** hashring;
     int num_servers;
     int current_hashring_items;
-    char*** server_items;
+    lb_data_t*** load_balancer_data;
 } load_balancer_t;
+
 
 typedef struct load_balancer load_balancer;
 
@@ -25,6 +33,8 @@ load_balancer* init_load_balancer();
 unsigned int hash_function_servers(void *a);
 unsigned int hash_function_key(void *a);
 
+// Print a server's items
+void print_server(load_balancer* main, int server_id);
 
 void free_load_balancer(load_balancer* main);
 

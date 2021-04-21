@@ -1,6 +1,8 @@
 /* Copyright Chelcea Claudiu-Marian */
 #include "client.h"
 #include "load_balancer.h"
+#include <ctype.h>
+#define MAX_SERVER_ITEMS 1000
 
 // Get element value from request
 void get_key_value(char* key, char* value, char* request)
@@ -62,7 +64,7 @@ void apply_requests(FILE* input_file)
 
 			int index_server = 0;
 			loader_store(main_server, key, value, &index_server);
-			printf("Stored %s on server %d.\n", value, index_server / 3);
+			printf("Stored %s on server %d.\n", value, index_server);
 
 			memset(key, 0, sizeof(key));
 			memset(value, 0, sizeof(value));
@@ -76,7 +78,7 @@ void apply_requests(FILE* input_file)
 											key, &index_server);
 			if (retrieved_value) {
 				printf("Retrieved %s from server %d.\n",
-						retrieved_value, index_server/3);
+						retrieved_value, index_server);
 			} else {
 				printf("Key %s not present.\n", key);
 			}
@@ -100,11 +102,25 @@ void apply_requests(FILE* input_file)
 		}
 	}
 
-	// for(int i=0;i<main_server->current_hashring_items;i++)	{
-	// 	printf("SERVER: %d LABEL:%d LABEL_HASH:%x\n",main_server->hashring[i]->server_index,main_server->hashring[i]->server_label,hash_function_servers(&main_server->hashring[i]->server_label));
+	//for(int i=0;i<main_server->current_hashring_items;i++)	{
+	//	printf("SERVER: %d LABEL:%d LABEL_HASH:%x\n",main_server->hashring[i]->server_index,main_server->hashring[i]->server_label,hash_function_servers(&main_server->hashring[i]->server_label));
 		
-	// }
+	//}
+
+	//print_server(main_server,0);
+	//print_server(main_server,1);
+	//print_server(main_server,2);
 	// printf("SERVERS: %d\n", main_server->current_hashring_items/3);
+	// for(int i=0;i<MAX_SERVER_ITEMS;i++) {
+	// 	if(isalpha(main_server->server_items[0][i][0]))
+	// 		printf("PRINTEZ: %d: %s\n",i,main_server->server_items[0][i]);
+	// }
+	// print_server(main_server,0);
+	// printf("\n\n%s\n\n",main_server->server_items[0][780]);
+	// printf("\n\n%s\n\n",main_server->server_items[0][784]);
+	// printf("\n\n%s\n\n",main_server->server_items_keys[0][780]);
+	// printf("\n\n%s\n\n",main_server->server_items_keys[0][784]);
+	
 
 	// Release memory
 	free_load_balancer(main_server);

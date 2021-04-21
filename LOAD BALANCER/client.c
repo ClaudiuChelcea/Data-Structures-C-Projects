@@ -62,7 +62,7 @@ void apply_requests(FILE* input_file)
 
 			int index_server = 0;
 			loader_store(main_server, key, value, &index_server);
-			printf("Stored %s on server %d.\n", value, index_server);
+			printf("Stored %s on server %d.\n", value, index_server / 3);
 
 			memset(key, 0, sizeof(key));
 			memset(value, 0, sizeof(value));
@@ -76,7 +76,7 @@ void apply_requests(FILE* input_file)
 											key, &index_server);
 			if (retrieved_value) {
 				printf("Retrieved %s from server %d.\n",
-						retrieved_value, index_server);
+						retrieved_value, index_server/3);
 			} else {
 				printf("Key %s not present.\n", key);
 			}
@@ -100,11 +100,11 @@ void apply_requests(FILE* input_file)
 		}
 	}
 
-	for(int i=0;i<main_server->current_hashring_items;i++)	{
-		printf("SERVER: %d LABEL:%d LABEL_HASH:%u\n",main_server->hashring[i]->server_index,main_server->hashring[i]->server_label,hash_function_servers(&main_server->hashring[i]->server_label));
+	// for(int i=0;i<main_server->current_hashring_items;i++)	{
+	// 	printf("SERVER: %d LABEL:%d LABEL_HASH:%x\n",main_server->hashring[i]->server_index,main_server->hashring[i]->server_label,hash_function_servers(&main_server->hashring[i]->server_label));
 		
-	}
-	printf("SERVERS: %d\n", main_server->current_hashring_items/3);
+	// }
+	// printf("SERVERS: %d\n", main_server->current_hashring_items/3);
 
 	// Release memory
 	free_load_balancer(main_server);

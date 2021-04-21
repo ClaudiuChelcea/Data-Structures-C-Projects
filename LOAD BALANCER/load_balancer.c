@@ -65,7 +65,7 @@ void loader_store(load_balancer* main, char* key, char* value, int* server_id) {
 
     // Get hash value of the key
 	unsigned int key_hash = hash_function_key(key);
-    printf("%u\n\n",key_hash);
+   // printf("%u\n\n",key_hash);
     
     int found_server = -1;
     // Get the server to store the data on
@@ -84,6 +84,8 @@ void loader_store(load_balancer* main, char* key, char* value, int* server_id) {
 
         // Add to first server
         strcpy(main->server_items[0][value_index],value);
+       // printf("Added la inceput avand hash %x %d\n",key_hash,value_index);
+        *server_id = 0;
     }
     else {
          // Get value's index
@@ -91,6 +93,8 @@ void loader_store(load_balancer* main, char* key, char* value, int* server_id) {
 
         // Add to certain server
         strcpy(main->server_items[found_server][value_index],value);
+       // printf("Added la %dt avand hash %x %d\n",found_server, key_hash,value_index);
+        *server_id = found_server;
     }
 }
 
@@ -227,12 +231,70 @@ void loader_add_server(load_balancer* main, int server_id) {
     ++server_index;
 }
 
+// Remove a server from the load balancer
+void remove_server(load_balancer* main, int index_replica_id)
+{
+    for(int i=index_replica_id;i<main->current_hashring_items;i++)
+        main->hashring[i] = main->hashring[i+1];
+
+    main->current_hashring_items -=1;    
+}
+
 // Removes a server from the system and rebalances the objects.
 void loader_remove_server(load_balancer* main, int server_id) {
-	/* TODO. */
+	// Check for the existence of the load balancer
+    if(!main)
+        return;
+
+    // Get server indexes in hashring
+    int index_replica_id_0  = -1;
+    int index_replica_id_1  = -1;
+    int index_replica_id_2  = -1;
+    for(int i=0;i<main->current_hashring_items;i++) {
+        if(server_id == main->hashring[i]->server_index) {
+            // We will find tree indexes, since this is the the saving method
+            // a server + 2 replicas
+            if(index_replica_id_0 == -1)
+                index_replica_id_0 = i;
+            else if(index_replica_id_1 == -1)
+                index_replica_id_0 = i;
+            else if(index_replica_id_2 == -1)
+                index_replica_id_0 = i;
+            else
+                break;
+        }
+    }
+
+    // Rebalance server's elements
+    
+    
+    // Remove server
+    remove_server(main, index_replica_id_0);
+    remove_server(main, index_replica_id_1);
+    remove_server(main, index_replica_id_2);
 }
 
 // Free memory
 void free_load_balancer(load_balancer* main) {
-    /* TODO. */
+ 
+// 	// Release load_balancer's content
+//     for(int i=0;i<main->num_servers;i++) {
+//         free(main->hashring[i]);
+//         main->hashring[i] = NULL;
+//         // for(int j=0;j<MAX_SERVER_ITEMS-100;j++) {
+//         //     if(main->server_items[i][j])
+//         //         free(main->server_items[i][j]);
+//         //     main->server_items[i][j] = NULL;
+//         // }
+//        // free(main->server_items[i]);
+//         //main->server_items[i] = NULL;
+//     }
+
+//     // Release load balancer
+//     free(main->server_items);
+//     main->server_items = NULL;
+//     free(main->hashring);
+//     main->hashring = NULL;
+//     free(main);
+//     main = NULL;
 }

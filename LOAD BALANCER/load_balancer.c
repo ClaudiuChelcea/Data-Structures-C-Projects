@@ -152,6 +152,7 @@ char* loader_retrieve(load_balancer* main, char* key, int* server_id) {
         return main->load_balancer_data[*server_id][value_index]->server_items;
     }
     return NULL;
+    
 }
 
 // Add server by label

@@ -52,7 +52,8 @@ void apply_requests(FILE* input_file)
 	char request[REQUEST_LENGTH] = {0};
 	char key[KEY_LENGTH] = {0};
 	char value[VALUE_LENGTH] = {0};
-	load_balancer* main_server = init_load_balancer();
+	load_balancer* main_server = NULL;
+	main_server = init_load_balancer();
 
 	// Scan command
 	while (fgets(request, REQUEST_LENGTH, input_file)) {

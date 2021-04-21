@@ -9,7 +9,6 @@
 #include "utils.h"
 #include "server.h"
 #include "client.h"
-#include "linkedlist.h"
 
 typedef struct lb_data
 {

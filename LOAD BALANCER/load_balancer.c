@@ -151,7 +151,7 @@ char* loader_retrieve(load_balancer* main, char* key, int* server_id) {
         /// Return the found value
         return main->load_balancer_data[*server_id][value_index]->server_items;
     }
-    
+    return NULL;
 }
 
 // Add server by label
@@ -208,7 +208,6 @@ void add_server_by_label(load_balancer* main, int server_label, int server_id, i
                     }
                 }
             }
-            
         }
         // Add to the beginning
         else if(main->hashring[0]->server_label == -1 || label__hash < (unsigned int)hash_function_servers(&main->hashring[0]->server_label)) {
@@ -409,14 +408,7 @@ void loader_remove_server(load_balancer* main, int server_id) {
                 break;
         }
     }
-  //print_server(main,2);
-   // print_server(main,1);
-    
-    
-    // Remove server and rebalance server's elements
-   //move_server_items(main, index_replica_id_0, server_id);
-  // remove_server_replica(main, index_replica_id_1, server_id);
-   //remove_server_replica(main, index_replica_id_2, server_id); 3 2 1 3 1 2
+ 
    delete_all_replicas(main,index_replica_id_0,index_replica_id_1,index_replica_id_2, server_id);
 }
 
@@ -446,26 +438,28 @@ void print_server(load_balancer* main, int server_id)
 }
 
 // Free memory
-void free_load_balancer(load_balancer* main) {
- 
-// 	// Release load_balancer's content
-//     for(int i=0;i<main->num_servers;i++) {
-//         free(main->hashring[i]);
-//         main->hashring[i] = NULL;
-//         // for(int j=0;j<MAX_SERVER_ITEMS-100;j++) {
-//         //     if(main->server_items[i][j])
-//         //         free(main->server_items[i][j]);
-//         //     main->server_items[i][j] = NULL;
-//         // }
-//        // free(main->server_items[i]);
-//         //main->server_items[i] = NULL;
-//     }
+void free_load_balancer(load_balancer* my_load_balancer) {
 
-//     // Release load balancer
-//     free(main->server_items);
-//     main->server_items = NULL;
-//     free(main->hashring);
-//     main->hashring = NULL;
-//     free(main);
-//     main = NULL;
+    for(int i=0;i<my_load_balancer->current_hashring_items/3-1;i++) {
+        free(my_load_balancer->hashring[i*3]);
+        free(my_load_balancer->hashring[i*3+1]);
+        free(my_load_balancer->hashring[i*3+2]);
+        my_load_balancer->hashring[i*3] = NULL;
+        my_load_balancer->hashring[i*3+1] = NULL;
+        my_load_balancer->hashring[i*3+2] = NULL;
+        for(int j=0;j<MAX_SERVER_ITEMS-1;j++) {
+           free(my_load_balancer->load_balancer_data[i][j]);
+           my_load_balancer->load_balancer_data[i][j] = NULL;
+        }
+        free(my_load_balancer->load_balancer_data[i]);
+        my_load_balancer->load_balancer_data[i] = NULL;
+    }
+
+    free(my_load_balancer->load_balancer_data);
+    my_load_balancer->load_balancer_data = NULL;
+    free(my_load_balancer->hashring);   
+    my_load_balancer->hashring = NULL; 
+
+    free(my_load_balancer);
+    my_load_balancer = NULL;
 }

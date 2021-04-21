@@ -74,7 +74,8 @@ void apply_requests(FILE* input_file)
 			get_key(key, request);
 
 			int index_server = 0;
-			char *retrieved_value = loader_retrieve(main_server,
+			char *retrieved_value = NULL;
+			retrieved_value = loader_retrieve(main_server,
 											key, &index_server);
 			if (retrieved_value) {
 				printf("Retrieved %s from server %d.\n",
@@ -101,29 +102,6 @@ void apply_requests(FILE* input_file)
 			DIE(1, "unknown function call");
 		}
 	}
-
-	// for(int i=0;i<main_server->current_hashring_items;i++)	{
-	// 	printf("SERVER: %d LABEL:%d LABEL_HASH:%x\n",main_server->hashring[i]->server_index,main_server->hashring[i]->server_label,hash_function_servers(&main_server->hashring[i]->server_label));
-		
-	// }
-
-	// printf("SERVERS===============000000\n");
-	// print_server(main_server,0);
-	// printf("SERVERS===============111111\n");
-	// print_server(main_server,1);
-	// printf("SERVERS===============222222\n");
-	// print_server(main_server,2);
-	// printf("SERVERS: %d\n", main_server->current_hashring_items/3);
-	// for(int i=0;i<MAX_SERVER_ITEMS;i++) {
-	// 	if(isalpha(main_server->server_items[0][i][0]))
-	// 		printf("PRINTEZ: %d: %s\n",i,main_server->server_items[0][i]);
-	// }
-	// print_server(main_server,0);
-	// printf("\n\n%s\n\n",main_server->server_items[0][780]);
-	// printf("\n\n%s\n\n",main_server->server_items[0][784]);
-	// printf("\n\n%s\n\n",main_server->server_items_keys[0][780]);
-	// printf("\n\n%s\n\n",main_server->server_items_keys[0][784]);
-	
 
 	// Release memory
 	free_load_balancer(main_server);

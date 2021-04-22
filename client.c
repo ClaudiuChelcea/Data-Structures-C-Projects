@@ -90,7 +90,6 @@ void apply_requests(FILE* input_file)
 		// Add new server
 		} else if (!strncmp(request, "add_server", sizeof("add_server") - 1)) {
 			int server_id = atoi(request + sizeof("add_server"));
-
 			loader_add_server(main_server, server_id);
 
 		// Remove server
@@ -99,10 +98,16 @@ void apply_requests(FILE* input_file)
 			int server_id = atoi(request + sizeof("remove_server"));
 
 			loader_remove_server(main_server, server_id);
+			
 		} else {
 			DIE(1, "unknown function call");
 		}
 	}
+//	for(int i=0;i<main_server->current_hashring_items;i++) {
+	//	printf("Server real index: %d index %d label %d hash %u\n",main_server->hashring[i]->real_server_index,main_server->hashring[i]->server_index,main_server->hashring[i]->server_label,hash_function_servers(&main_server->hashring[i]->server_label));
+//	}
+
+//	print_server(main_server,0);
 
 	// Release memory
 	free_load_balancer(main_server);

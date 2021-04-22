@@ -8,6 +8,7 @@ typedef struct server_memory server_memory;
 typedef struct server_pointer {
 	int server_index;
 	int server_label;
+	int real_server_index;
 } server_pointer;
 
 struct server_memory {

@@ -3,7 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "load_balancer.h"
-#define STARTING_SERVERS 10
+#define STARTING_SERVERS 100
 #define MAX_SERVER_ITEMS 1000
 
 unsigned int hash_function_servers(void *a) {
@@ -47,12 +47,15 @@ load_balancer* init_load_balancer() {
         my_load_balancer->hashring[i*3] = malloc(sizeof(struct server_pointer));
         my_load_balancer->hashring[i*3]->server_index = -1;
         my_load_balancer->hashring[i*3]->server_label = -1;
+        my_load_balancer->hashring[i*3]->real_server_index = -1;
         my_load_balancer->hashring[i*3+1] = malloc(sizeof(struct server_pointer));
         my_load_balancer->hashring[i*3+1]->server_index = -1;
         my_load_balancer->hashring[i*3+1]->server_label = -1;
+        my_load_balancer->hashring[i*3+1]->real_server_index = -1;
         my_load_balancer->hashring[i*3+2] = malloc(sizeof(struct server_pointer));
         my_load_balancer->hashring[i*3+2]->server_index = -1;
         my_load_balancer->hashring[i*3+2]->server_label = -1;
+         my_load_balancer->hashring[i*3+2]->real_server_index = -1;
       
         // Allocate server's items
         my_load_balancer->load_balancer_data[i] = malloc(MAX_SERVER_ITEMS * sizeof(sizeof(lb_data_t*)));
@@ -80,10 +83,12 @@ void loader_store(load_balancer* main, char* key, char* value, int* server_id) {
    // printf("%u\n\n",key_hash);
     
     int found_server = -1;
+    int found_server_hashring_index = -1;
     // Get the server to store the data on
     for(int i=0;i<main->current_hashring_items;i++) {
         if(key_hash <= hash_function_servers(&main->hashring[i]->server_label)) {
             found_server = main->hashring[i]->server_index;
+            found_server_hashring_index = i;
             break;
         }
     }
@@ -102,7 +107,7 @@ void loader_store(load_balancer* main, char* key, char* value, int* server_id) {
         //printf("%s %s %s %s\n",main->load_balancer_data[0][value_index]->server_keys,main->load_balancer_data[0][value_index+4]->server_keys,main->load_balancer_data[0][value_index]->server_items,main->load_balancer_data[0][value_index + 4]->server_items);
 
         
-        *server_id = 0;
+        *server_id  = main->hashring[0]->real_server_index;
         
     }
     else {
@@ -112,7 +117,7 @@ void loader_store(load_balancer* main, char* key, char* value, int* server_id) {
         // Add to certain server
         strncpy(main->load_balancer_data[found_server][value_index]->server_keys,key,strlen(key));
         strncpy(main->load_balancer_data[found_server][value_index]->server_items,value,strlen(value));
-        *server_id = found_server;
+        *server_id  = main->hashring[found_server_hashring_index]->real_server_index;
     }
 }
 
@@ -124,11 +129,13 @@ char* loader_retrieve(load_balancer* main, char* key, int* server_id) {
 
     // Get hash value of the key
 	unsigned int key_hash = hash_function_key(key);
-    
+
+    int found_server_hashring_index = -1;
     *server_id = -1;
     // Get the server to store the data on
     for(int i=0;i<main->current_hashring_items;i++) {
         if(key_hash <= hash_function_servers(&main->hashring[i]->server_label)) {
+            found_server_hashring_index = i;
             *server_id = main->hashring[i]->server_index;
             break;
         }
@@ -139,7 +146,7 @@ char* loader_retrieve(load_balancer* main, char* key, int* server_id) {
     if(*server_id == -1) {
         // Get value's index
         unsigned int value_index = key_hash % MAX_SERVER_ITEMS;
-        *server_id = 0;
+        *server_id  = main->hashring[0]->real_server_index;
 
         // Return the found value
         return main->load_balancer_data[0][value_index]->server_items;
@@ -147,9 +154,10 @@ char* loader_retrieve(load_balancer* main, char* key, int* server_id) {
     else {
         // Get value's index
         unsigned int value_index = key_hash % MAX_SERVER_ITEMS;
-
+        int sv_index = *server_id;
+        *server_id  = main->hashring[found_server_hashring_index]->real_server_index;
         /// Return the found value
-        return main->load_balancer_data[*server_id][value_index]->server_items;
+        return main->load_balancer_data[sv_index][value_index]->server_items;
     }
     return NULL;
     
@@ -187,7 +195,8 @@ void add_server_by_label(load_balancer* main, int server_label, int server_id, i
             DIE(!new_server, "Couldn't create new server!\n");
             new_server->server_index = server_index;
             new_server->server_label = server_label;
-
+            new_server->real_server_index = server_id;
+            
             // Put it in the list
             main->hashring[main->current_hashring_items] = new_server;
             main->current_hashring_items = main->current_hashring_items + 1;
@@ -218,6 +227,7 @@ void add_server_by_label(load_balancer* main, int server_label, int server_id, i
             DIE(!new_server, "Couldn't create new server!\n");
             new_server->server_index = server_index;
             new_server->server_label = server_label;
+            new_server->real_server_index = server_id;
 
             // Add first new_server;
             for(int i=main->current_hashring_items;i>=1;i--)
@@ -233,6 +243,7 @@ void add_server_by_label(load_balancer* main, int server_label, int server_id, i
         DIE(!new_server, "Couldn't create new server!\n");
         new_server->server_index = server_index;
         new_server->server_label = server_label;
+        new_server->real_server_index = server_id;
 
         // Move all server pointers from index to the right
         for(int i = main->current_hashring_items; i > index; i--) {
@@ -427,7 +438,9 @@ void print_server(load_balancer* main, int server_id)
             is_string = -1;
         else {
             for(size_t j=0;j<strlen(main->load_balancer_data[server_id][i]->server_items);j++) {
-                if(!isalpha(main->load_balancer_data[server_id][i]->server_items[j])) {
+                if(!isalpha(main->load_balancer_data[server_id][i]->server_items[j])
+                    && !isdigit(main->load_balancer_data[server_id][i]->server_items[j])
+                    && main->load_balancer_data[server_id][i]->server_items[j] != ' ') {
                     is_string = -1;
                     break;
                 }

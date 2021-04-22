@@ -33,6 +33,7 @@ load_balancer* init_load_balancer() {
     DIE(!my_load_balancer,"Couldn't create load balancer!\n");
 
     // Save data
+    my_load_balancer->max_server_index = 0;
     my_load_balancer->num_servers = STARTING_SERVERS;
     my_load_balancer->current_hashring_items = 0;
     my_load_balancer->hashring = NULL;
@@ -281,14 +282,13 @@ void loader_add_server(load_balancer* main, int server_id) {
     int label_1 = REPLICA * 0 + server_id;
     int label_2 = REPLICA * 1 + server_id;
     int label_3 = REPLICA * 2 + server_id;
-    
-    // Choose server
-    int server_index = main->current_hashring_items / 3;
-   
+
+    int server_index = main->max_server_index++;
+   // printf("SERVER HASH %d %u %u %u\n",server_id,hash_function_servers(&label_1),hash_function_servers(&label_2),hash_function_servers(&label_3));
     // Find the position
-    add_server_by_label(main,label_1, server_id, server_index);
-    add_server_by_label(main,label_2, server_id, server_index);
-    add_server_by_label(main,label_3, server_id, server_index);
+    add_server_by_label(main, label_1, server_id, server_index);
+    add_server_by_label(main, label_2, server_id, server_index);
+    add_server_by_label(main, label_3, server_id, server_index);
 }
 
 // Remove a server from the load balancer
@@ -297,8 +297,7 @@ void move_server_items(load_balancer* main, int index_replica_id, int server_id)
     // Move all elements to the next server in the hash ring
     for(int i=0;i < MAX_SERVER_ITEMS-1; i++) {
         // Get all items on the server
-        if(strcmp(main->load_balancer_data[main->hashring[index_replica_id]->server_index][i]->server_items, "") !=0 &&
-           isalpha(main->load_balancer_data[main->hashring[index_replica_id]->server_index][i]->server_items[0])) {
+        if(strcmp(main->load_balancer_data[main->hashring[index_replica_id]->server_index][i]->server_items, "") !=0) {
 
             // Rellocate them on the next server
             int index_new_server = -1;
@@ -309,7 +308,7 @@ void move_server_items(load_balancer* main, int index_replica_id, int server_id)
             // Find the first server bigger than him
             for(int j=index_replica_id;j<main->current_hashring_items;j++) {
                 // printf("ASTA %x VS %x\n\n",key_hash,hash_function_servers(&main->hashring[j]->server_label));
-                if(server_id == main->hashring[j]->server_index)
+                if(server_id == main->hashring[j]->real_server_index)
                     continue;
                 if(key_hash < hash_function_servers(&main->hashring[j]->server_label)) {
                     index_new_server = j;
@@ -407,7 +406,7 @@ void loader_remove_server(load_balancer* main, int server_id) {
     int index_replica_id_1  = -1;
     int index_replica_id_2  = -1;
     for(int i=0;i<main->current_hashring_items;i++) {
-        if(server_id == main->hashring[i]->server_index) {
+        if(server_id == main->hashring[i]->real_server_index) {
             // We will find tree indexes, since this is the the saving method
             // a server + 2 replicas
             if(index_replica_id_0 == -1)
@@ -432,22 +431,22 @@ void print_server(load_balancer* main, int server_id)
 
     // Get all items
     for(int i=0;i<MAX_SERVER_ITEMS-1;i++) {
+        //printf("%i %s\n",i,main->load_balancer_data[server_id][i]->server_items);
         // If item exists, print it
         int is_string = 1;
         if(strcmp(main->load_balancer_data[server_id][i]->server_items, "") == 0)
             is_string = -1;
         else {
+            char compare_item = ' ';
             for(size_t j=0;j<strlen(main->load_balancer_data[server_id][i]->server_items);j++) {
-                if(!isalpha(main->load_balancer_data[server_id][i]->server_items[j])
-                    && !isdigit(main->load_balancer_data[server_id][i]->server_items[j])
-                    && main->load_balancer_data[server_id][i]->server_items[j] != ' ') {
+                if(main->load_balancer_data[server_id][i]->server_items[0] == compare_item) {
                     is_string = -1;
                     break;
                 }
             }
         }
         if(is_string == 1)
-            printf("On position %d: %s on server %d\n",i,main->load_balancer_data[server_id][i]->server_items,server_id);
+            printf("On position %d: %s on server %d.\n",i,main->load_balancer_data[server_id][i]->server_items,server_id);
     }
 }
 

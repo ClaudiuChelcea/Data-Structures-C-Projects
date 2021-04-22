@@ -115,16 +115,16 @@ void apply_requests(FILE* input_file)
 			DIE(1, "unknown function call");
 		}
 	}
-	// for(int i=0;i<main_server->current_hashring_items;i++) {
-	// 	printf("Server real index: %d index %d label %d hash %u\n",main_server->hashring[i]->real_server_index,main_server->hashring[i]->server_index,main_server->hashring[i]->server_label,hash_function_servers(&main_server->hashring[i]->server_label));
-	// }
+	for(int i=0;i<main_server->current_hashring_items;i++) {
+		printf("Server real index: %d index %d label %d hash %u\n",main_server->hashring[i]->real_server_index,main_server->hashring[i]->server_index,main_server->hashring[i]->server_label,hash_function_servers(&main_server->hashring[i]->server_label));
+	}
 
 	print_server(main_server,0);
 	print_server(main_server,1);
 	print_server(main_server,2);
 	print_server(main_server,3);
 	print_server(main_server,4);
-	print_server(main_server,5);
+	//print_server(main_server,5);
 
 	// Release memory
 	free_load_balancer(main_server);

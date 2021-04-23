@@ -4,6 +4,8 @@
 #include <ctype.h>
 #define MAX_SERVER_ITEMS 1000
 
+int debug = 0;
+
 // Get element value from request
 void get_key_value(char* key, char* value, char* request)
 {
@@ -75,7 +77,8 @@ void apply_requests(FILE* input_file)
 			get_key_value(key, value, request);
 			int index_server = 0;
 			loader_store(main_server, key, value, &index_server);
-			printf("Hash for %s is %u.-----------\n",value,hash_function_key(key));
+			if(debug)
+				printf("Hash for %s is %u.-----------\n",value,hash_function_key(key));
 			printf("Stored %s on server %d.\n", value, index_server);
 
 			memset(key, 0, sizeof(key));
@@ -115,16 +118,21 @@ void apply_requests(FILE* input_file)
 			DIE(1, "unknown function call");
 		}
 	}
+	if(debug) {
 	for(int i=0;i<main_server->current_hashring_items;i++) {
 		printf("Server real index: %d index %d label %d hash %u\n",main_server->hashring[i]->real_server_index,main_server->hashring[i]->server_index,main_server->hashring[i]->server_label,hash_function_servers(&main_server->hashring[i]->server_label));
 	}
-
+	}
+	if(debug) {
 	print_server(main_server,0);
 	print_server(main_server,1);
 	print_server(main_server,2);
 	print_server(main_server,3);
 	print_server(main_server,4);
-	//print_server(main_server,5);
+	print_server(main_server,5);
+	print_server(main_server,6);
+
+	}
 
 	// Release memory
 	free_load_balancer(main_server);

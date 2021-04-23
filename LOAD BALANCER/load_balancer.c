@@ -56,7 +56,7 @@ load_balancer* init_load_balancer() {
         my_load_balancer->hashring[i*3+2] = malloc(sizeof(struct server_pointer));
         my_load_balancer->hashring[i*3+2]->server_index = -1;
         my_load_balancer->hashring[i*3+2]->server_label = -1;
-         my_load_balancer->hashring[i*3+2]->real_server_index = -1;
+        my_load_balancer->hashring[i*3+2]->real_server_index = -1;
       
         // Allocate server's items
         my_load_balancer->load_balancer_data[i] = malloc(MAX_SERVER_ITEMS * sizeof(sizeof(lb_data_t*)));
@@ -253,24 +253,27 @@ void add_server_by_label(load_balancer* main, int server_label, int server_id, i
         // Set the new server pointer
         main->hashring[index] = new_server;
         main->current_hashring_items = main->current_hashring_items + 1;
-        
-        DIE(1, "TO FIX REBALANCING WHEN ADD SERVER!\n");
+        //printf("%d %d\n\n\n",index,main->hashring[index+1]->server_index);
         // Rebalance
         for(int i=0;i < MAX_SERVER_ITEMS-1; i++) {
             // Get all items on the server
-            if(strcmp(main->load_balancer_data[main->hashring[index]->server_index][i]->server_items, "") !=0) {
+            if(strcmp(main->load_balancer_data[main->hashring[index+1]->server_index][i]->server_items, "") !=0) {
+              //  printf("Item %s on position %d on server %d.\n",main->load_balancer_data[main->hashring[index+1]->server_index][i]->server_items,i,main->hashring[index+1]->server_index);
 
                 // Get the current server's hash
-                unsigned int key_hash = hash_function_key(&main->load_balancer_data[main->hashring[index]->server_index][i]->server_keys);
+                unsigned int key_hash = hash_function_key(&main->load_balancer_data[main->hashring[index+1]->server_index][i]->server_keys);
             
-                if(key_hash < label__hash) {
-                    strcpy(main->load_balancer_data[server_index][key_hash % MAX_SERVER_ITEMS]->server_items,main->load_balancer_data[main->hashring[index]->server_index][i]->server_items);
-                    strcpy(main->load_balancer_data[server_index][key_hash % MAX_SERVER_ITEMS]->server_keys,main->load_balancer_data[main->hashring[index]->server_index][i]->server_keys);
-                    strncpy(main->load_balancer_data[main->hashring[index]->server_index][i]->server_keys,"",1);
-                    strncpy(main->load_balancer_data[main->hashring[index]->server_index][i]->server_items,"",1);
+                if(key_hash < label__hash && key_hash > hash_function_servers(&main->hashring[index-1]->server_label)) {
+                    //printf("Move item %s\n",main->load_balancer_data[main->hashring[index+1]->server_index][i]->server_items);
+                    strcpy(main->load_balancer_data[main->hashring[index]->server_index][key_hash % MAX_SERVER_ITEMS]->server_items,main->load_balancer_data[main->hashring[index+1]->server_index][i]->server_items);
+                    strcpy(main->load_balancer_data[main->hashring[index]->server_index][key_hash % MAX_SERVER_ITEMS]->server_keys,main->load_balancer_data[main->hashring[index+1]->server_index][i]->server_keys);
+                    strcpy(main->load_balancer_data[main->hashring[index+1]->server_index][i]->server_items,"");
+                    strcpy(main->load_balancer_data[main->hashring[index+1]->server_index][i]->server_keys,"");
                 }
+                
             }
         }
+       // printf("\n\n");
     }
 }
 
@@ -297,7 +300,7 @@ void move_server_items(load_balancer* main, int index_replica_id, int server_id)
     for(int i=0;i < MAX_SERVER_ITEMS-1; i++) {
         // Get all items on the server
         if(strcmp(main->load_balancer_data[main->hashring[index_replica_id]->server_index][i]->server_items, "") !=0) {
-
+        // printf("Item to fucking move %s\n",main->load_balancer_data[main->hashring[index_replica_id]->server_index][i]->server_items);
             // Rellocate them on the next server
             int index_new_server = -1;
          
@@ -305,15 +308,18 @@ void move_server_items(load_balancer* main, int index_replica_id, int server_id)
             unsigned int key_hash = hash_function_key(&main->load_balancer_data[main->hashring[index_replica_id]->server_index][i]->server_keys);
            
             // Find the first server bigger than him
-            for(int j=index_replica_id;j<main->current_hashring_items;j++) {
+            for(int j=0;j<main->current_hashring_items;j++) {
                 // printf("ASTA %x VS %x\n\n",key_hash,hash_function_servers(&main->hashring[j]->server_label));
                 if(server_id == main->hashring[j]->real_server_index)
                     continue;
+                //("Comparring %u with %u\n",key_hash, hash_function_servers(&main->hashring[j]->server_label));
                 if(key_hash < hash_function_servers(&main->hashring[j]->server_label)) {
                     index_new_server = j;
                     break;
                 }
-            } 
+            }
+          //  printf("\n\n%d\n\n",index_new_server);
+          //  printf("%u\n\n",key_hash);
            
             // If found is -1, by the circular logic we add it to the first server, if it exists
             // otherwise we add it to the requested server
@@ -326,7 +332,7 @@ void move_server_items(load_balancer* main, int index_replica_id, int server_id)
                 //printf("MOVED TO THE START\n");
             }
             else {
-              //  printf("Moved to server %d\n", main->hashring[index_new_server]->server_index);
+            //    printf("Moved to server %d\n", main->hashring[index_new_server]->server_index);
                 strcpy(main->load_balancer_data[main->hashring[index_new_server]->server_index][key_hash % MAX_SERVER_ITEMS]->server_items,main->load_balancer_data[main->hashring[index_replica_id]->server_index][i]->server_items);
                 strcpy(main->load_balancer_data[main->hashring[index_new_server]->server_index][key_hash % MAX_SERVER_ITEMS]->server_keys,main->load_balancer_data[main->hashring[index_replica_id]->server_index][i]->server_keys);
                 strncpy(main->load_balancer_data[main->hashring[index_replica_id]->server_index][i]->server_keys,"",1);

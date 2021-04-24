@@ -167,13 +167,13 @@ char* loader_retrieve(load_balancer* main, char* key, int* server_id) {
 // Add server by label
 void add_server_by_label(load_balancer* main, int server_label, int server_id, int server_index)
 {
-    // Create hash of labels
+    // Create hash of label
     unsigned int label__hash = hash_function_servers(&server_label);
 
     // Search the current servers
     int index = -1;
     for(int i=0;i<main->current_hashring_items;i++) {
-        // printf("%u %u %d\n",label__hash,(unsigned int)hash_function_servers(&main->hashring[i]->server_label),label__hash<(unsigned int)hash_function_servers(&main->hashring[i]->server_label));
+       // printf("%u %u %d\n",label__hash,(unsigned int)hash_function_servers(&main->hashring[i]->server_label),label__hash<(unsigned int)hash_function_servers(&main->hashring[i]->server_label));
         if((unsigned int)label__hash<=(unsigned int)hash_function_servers(&main->hashring[i]->server_label)) {
             index = i;
             break;
@@ -191,6 +191,7 @@ void add_server_by_label(load_balancer* main, int server_label, int server_id, i
         // Add to the end
         if(main->current_hashring_items>0 && main->hashring[main->current_hashring_items-1]->server_label != -1 && label__hash > (unsigned int)hash_function_servers(&main->hashring[main->current_hashring_items-1]->server_label)) {
             // Create new server_pointer
+           
             server_pointer* new_server = NULL;
             new_server = malloc(sizeof(server_pointer));
             DIE(!new_server, "Couldn't create new server!\n");
@@ -202,22 +203,23 @@ void add_server_by_label(load_balancer* main, int server_label, int server_id, i
             main->hashring[main->current_hashring_items] = new_server;
             main->current_hashring_items = main->current_hashring_items + 1;
 
-            // Rebalance
-            for(int i=0;i < MAX_SERVER_ITEMS-1; i++) {
-                // Get all items on the server
-                if(strcmp(main->load_balancer_data[0][i]->server_items, "") !=0) {
+            // // Rebalance
+            // for(int i=0;i < MAX_SERVER_ITEMS-1; i++) {
+            //     // Get all items on the server
+            //     if(strcmp(main->load_balancer_data[0][i]->server_items, "") !=0) {
 
-                    // Get the current server's hash
-                    unsigned int key_hash = hash_function_key(&main->load_balancer_data[0][i]->server_keys);
+            //         // Get the current server's hash
+            //         unsigned int key_hash = hash_function_key(&main->load_balancer_data[0][i]->server_keys);
                 
-                    if(key_hash < label__hash) {
-                        strcpy(main->load_balancer_data[server_index][key_hash % MAX_SERVER_ITEMS]->server_items,main->load_balancer_data[0][i]->server_items);
-                        strcpy(main->load_balancer_data[server_index][key_hash % MAX_SERVER_ITEMS]->server_keys,main->load_balancer_data[0][i]->server_keys);
-                        strncpy(main->load_balancer_data[0][i]->server_keys,"",1);
-                        strncpy(main->load_balancer_data[0][i]->server_items,"",1);
-                    }
-                }
-            }
+            //         if(key_hash < label__hash) {
+            //             printf("Add to the end %s\n",main->load_balancer_data[main->hashring[index+1]->server_index][i]->server_items);
+            //             strcpy(main->load_balancer_data[server_index][key_hash % MAX_SERVER_ITEMS]->server_items,main->load_balancer_data[0][i]->server_items);
+            //             strcpy(main->load_balancer_data[server_index][key_hash % MAX_SERVER_ITEMS]->server_keys,main->load_balancer_data[0][i]->server_keys);
+            //             strncpy(main->load_balancer_data[0][i]->server_keys,"",1);
+            //             strncpy(main->load_balancer_data[0][i]->server_items,"",1);
+            //         }
+            //     }
+            // }
         }
         // Add to the beginning
         else if(main->hashring[0]->server_label == -1 || label__hash < (unsigned int)hash_function_servers(&main->hashring[0]->server_label)) {
@@ -234,6 +236,7 @@ void add_server_by_label(load_balancer* main, int server_label, int server_id, i
                 main->hashring[i] = main->hashring[i-1];
             main->current_hashring_items = main->current_hashring_items + 1;
             main->hashring[0] = new_server;
+            //printf("Move item\n\n");
         }
     }
     else { // Add in between the elements
@@ -264,7 +267,7 @@ void add_server_by_label(load_balancer* main, int server_label, int server_id, i
                 unsigned int key_hash = hash_function_key(&main->load_balancer_data[main->hashring[index+1]->server_index][i]->server_keys);
             
                 if(key_hash < label__hash && key_hash > hash_function_servers(&main->hashring[index-1]->server_label)) {
-                    //printf("Move item %s\n",main->load_balancer_data[main->hashring[index+1]->server_index][i]->server_items);
+                  //  printf("Move item %s\n",main->load_balancer_data[main->hashring[index+1]->server_index][i]->server_items);
                     strcpy(main->load_balancer_data[main->hashring[index]->server_index][key_hash % MAX_SERVER_ITEMS]->server_items,main->load_balancer_data[main->hashring[index+1]->server_index][i]->server_items);
                     strcpy(main->load_balancer_data[main->hashring[index]->server_index][key_hash % MAX_SERVER_ITEMS]->server_keys,main->load_balancer_data[main->hashring[index+1]->server_index][i]->server_keys);
                     strcpy(main->load_balancer_data[main->hashring[index+1]->server_index][i]->server_items,"");

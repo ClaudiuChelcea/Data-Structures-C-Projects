@@ -4,7 +4,7 @@
 #include <ctype.h>
 #define MAX_SERVER_ITEMS 1000
 
-int debug = 1;
+int debug = 0;
 
 // Get element value from request
 void get_key_value(char* key, char* value, char* request)
@@ -71,6 +71,8 @@ void apply_requests(FILE* input_file)
 	// Scan command
 	while (fgets(request, REQUEST_LENGTH, input_file)) {
 		request[strlen(request) - 1] = 0;
+		static int i = 0;
+		++i;
 
 		// Store item
 		if (!strncmp(request, "store", sizeof("store") - 1)) {
@@ -119,19 +121,19 @@ void apply_requests(FILE* input_file)
 		}
 	}
 	if(debug) {
-	for(int i=0;i<main_server->current_hashring_items;i++) {
-		printf("Server real index: %d index %d label %d hash %u\n",main_server->hashring[i]->real_server_index,main_server->hashring[i]->server_index,main_server->hashring[i]->server_label,hash_function_servers(&main_server->hashring[i]->server_label));
-	}
+		for(int i=0;i<main_server->current_hashring_items;i++) {
+			printf("Server real index: %d index %d label %d hash %u\n",main_server->hashring[i]->real_server_index,main_server->hashring[i]->server_index,main_server->hashring[i]->server_label,hash_function_servers(&main_server->hashring[i]->server_label));
+		}
 	}
 	if(debug) {
-	print_server(main_server,0);
-	print_server(main_server,1);
-	print_server(main_server,2);
-	print_server(main_server,3);
-	print_server(main_server,4);
-	print_server(main_server,5);
-	print_server(main_server,6);
-
+		print_server(main_server,0);
+		print_server(main_server,1);
+		print_server(main_server,2);
+		print_server(main_server,3);
+		print_server(main_server,4);
+		print_server(main_server,5);
+		print_server(main_server,6);
+		print_server(main_server,7);
 	}
 
 	// Release memory

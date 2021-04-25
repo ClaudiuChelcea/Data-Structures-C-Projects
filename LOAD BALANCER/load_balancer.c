@@ -180,10 +180,9 @@ char* loader_retrieve(load_balancer* main, char* key, int* server_id) {
             int pos = r % MAX_SERVER_ITEMS;
             if(strcmp(main->load_balancer_data[sv_index][pos]->server_keys,key) == 0)
                 return main->load_balancer_data[sv_index][pos]->server_items;
-            
-        }  
+            }  
+            return NULL;
     }
-    return NULL;
 }
 
 // Add server by label

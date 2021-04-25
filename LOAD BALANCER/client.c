@@ -126,14 +126,8 @@ void apply_requests(FILE* input_file)
 		}
 	}
 	if(debug) {
-		print_server(main_server,0);
-		print_server(main_server,1);
-		print_server(main_server,2);
-		print_server(main_server,3);
-		print_server(main_server,4);
-		print_server(main_server,5);
-		print_server(main_server,6);
-		print_server(main_server,7);
+		for(int i=0;i<47;i++)
+			print_server(main_server,i);
 	}
 
 	// Release memory

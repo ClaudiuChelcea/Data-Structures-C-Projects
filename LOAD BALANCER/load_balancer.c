@@ -42,7 +42,7 @@ load_balancer* init_load_balancer() {
     DIE(!my_load_balancer->hashring || !my_load_balancer->load_balancer_data, "Couldn't create load balancer!\n");
 
     // Allocate initial servers
-    for(int i=0;i<my_load_balancer->num_servers-1;i++) {
+    for(int i=0;i<my_load_balancer->num_servers;i++) {
         // Allocate three spaces in the hashring at a time
         my_load_balancer->hashring[i*3] = malloc(sizeof(struct server_pointer));
         my_load_balancer->hashring[i*3]->server_index = -1;
@@ -59,7 +59,7 @@ load_balancer* init_load_balancer() {
       
         // Allocate server's items
         my_load_balancer->load_balancer_data[i] = malloc(MAX_SERVER_ITEMS * sizeof(sizeof(lb_data_t*)));
-        for(int j=0;j<MAX_SERVER_ITEMS-1;j++) {
+        for(int j=0;j<MAX_SERVER_ITEMS;j++) {
             my_load_balancer->load_balancer_data[i][j] = malloc(sizeof(lb_data_t));
             strncpy(my_load_balancer->load_balancer_data[i][j]->server_items,"",1);
             strncpy(my_load_balancer->load_balancer_data[i][j]->server_keys,"",1);
@@ -159,34 +159,31 @@ char* loader_retrieve(load_balancer* main, char* key, int* server_id) {
         // Get value's index
         unsigned int value_index = key_hash % MAX_SERVER_ITEMS;
         *server_id  = main->hashring[0]->real_server_index;
+        int max = value_index + MAX_SERVER_ITEMS;
 
-        // Return the found value
-        if(strcmp(main->load_balancer_data[0][value_index]->server_keys,key) == 0)
-            return main->load_balancer_data[0][value_index]->server_items;
-        else
-            for(int r=0;r<MAX_SERVER_ITEMS;r++) {
-                if(strcmp(main->load_balancer_data[0][r]->server_keys,key) == 0)
-                    return main->load_balancer_data[0][r]->server_items;
-            }
+        for(int r = value_index; r < max; r++) {
+            int pos = r % MAX_SERVER_ITEMS;
+            if(strcmp(main->load_balancer_data[0][pos]->server_keys,key) == 0)
+                return main->load_balancer_data[0][pos]->server_items;
+        }
+        return NULL;
     }
     else {
+    
         // Get value's index
         unsigned int value_index = key_hash % MAX_SERVER_ITEMS;
         int sv_index = *server_id;
         *server_id  = main->hashring[found_server_hashring_index]->real_server_index;
+        int max = value_index + MAX_SERVER_ITEMS; 
 
-        /// Return the found value
-        if(strcmp(main->load_balancer_data[sv_index][value_index]->server_keys,key) ==0)
-            return main->load_balancer_data[sv_index][value_index]->server_items;
-        else {
-            for(int i=0;i<MAX_SERVER_ITEMS;i++) {
-                  if(strcmp(main->load_balancer_data[sv_index][i]->server_keys,key) ==0)
-            return main->load_balancer_data[sv_index][i]->server_items;
-            }
-        }
+        for(int r = value_index; r < max; r++) {
+            int pos = r % MAX_SERVER_ITEMS;
+            if(strcmp(main->load_balancer_data[sv_index][pos]->server_keys,key) == 0)
+                return main->load_balancer_data[sv_index][pos]->server_items;
+            
+        }  
     }
     return NULL;
-    
 }
 
 // Add server by label
@@ -265,7 +262,7 @@ void add_server_by_label(load_balancer* main, int server_label, int server_id, i
         main->current_hashring_items = main->current_hashring_items + 1;
         //printf("%d %d\n\n\n",index,main->hashring[index+1]->server_index);
         // Rebalance
-        for(int i=0;i < MAX_SERVER_ITEMS-1; i++) {
+        for(int i=0;i < MAX_SERVER_ITEMS; i++) {
             // Get all items on the server
             if(strcmp(main->load_balancer_data[main->hashring[index+1]->server_index][i]->server_items, "") !=0) {
               //  printf("Item %s on position %d on server %d.\n",main->load_balancer_data[main->hashring[index+1]->server_index][i]->server_items,i,main->hashring[index+1]->server_index);
@@ -376,7 +373,7 @@ void loader_add_server(load_balancer* main, int server_id) {
 void move_server_items(load_balancer* main, int index_replica_id, int server_id)
 {   
     // Move all elements to the next server in the hash ring
-    for(int i=0;i < MAX_SERVER_ITEMS-1; i++) {
+    for(int i=0;i < MAX_SERVER_ITEMS; i++) {
         // Get all items on the server
         if(strcmp(main->load_balancer_data[main->hashring[index_replica_id]->server_index][i]->server_items, "") !=0) {
         // printf("Item to fucking move %s\n",main->load_balancer_data[main->hashring[index_replica_id]->server_index][i]->server_items);
@@ -528,7 +525,7 @@ void print_server(load_balancer* main, int server_id)
         return;
 
     // Get all items
-    for(int i=0;i<MAX_SERVER_ITEMS-1;i++) {
+    for(int i=0;i<MAX_SERVER_ITEMS;i++) {
         //printf("%i %s\n",i,main->load_balancer_data[server_id][i]->server_items);
         // If item exists, print it
         int is_string = 1;
@@ -551,14 +548,14 @@ void print_server(load_balancer* main, int server_id)
 // Free memory
 void free_load_balancer(load_balancer* my_load_balancer) {
 
-    for(int i=0;i<my_load_balancer->current_hashring_items/3-1;i++) {
+    for(int i=0;i<my_load_balancer->current_hashring_items/3;i++) {
         free(my_load_balancer->hashring[i*3]);
         free(my_load_balancer->hashring[i*3+1]);
         free(my_load_balancer->hashring[i*3+2]);
         my_load_balancer->hashring[i*3] = NULL;
         my_load_balancer->hashring[i*3+1] = NULL;
         my_load_balancer->hashring[i*3+2] = NULL;
-        for(int j=0;j<MAX_SERVER_ITEMS-1;j++) {
+        for(int j=0;j<MAX_SERVER_ITEMS;j++) {
            free(my_load_balancer->load_balancer_data[i][j]);
            my_load_balancer->load_balancer_data[i][j] = NULL;
         }

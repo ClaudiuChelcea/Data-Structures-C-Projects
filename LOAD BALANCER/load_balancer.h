@@ -23,7 +23,6 @@ typedef struct load_balancer
     int num_servers;
     int current_hashring_items;
     lb_data_t*** load_balancer_data;
-    int max_server_index;
 } load_balancer_t;
 
 

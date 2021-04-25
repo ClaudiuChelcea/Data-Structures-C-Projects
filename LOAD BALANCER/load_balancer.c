@@ -33,7 +33,6 @@ load_balancer* init_load_balancer() {
     DIE(!my_load_balancer,"Couldn't create load balancer!\n");
 
     // Save data
-    my_load_balancer->max_server_index = 0;
     my_load_balancer->num_servers = STARTING_SERVERS;
     my_load_balancer->current_hashring_items = 0;
     my_load_balancer->hashring = NULL;
@@ -207,7 +206,7 @@ void add_server_by_label(load_balancer* main, int server_label, int server_id, i
     }
 
     // If equal elements, sort by ID
-    if(index != -1 && main->hashring[index]->server_index != -1 && label__hash == (unsigned int)hash_function_servers(&(main->hashring[index]->server_label))) {
+    if(index != -1 && label__hash == (unsigned int)hash_function_servers(&(main->hashring[index]->server_label))) {
         if(server_id > main->hashring[index]->server_index)
             ++index;
     }
@@ -327,6 +326,10 @@ void add_server_by_label(load_balancer* main, int server_label, int server_id, i
     }
 }
 
+int cmpfunc(const void * a, const void * b) {
+    return *(int*)a - *(int*)b;
+}
+
 // Add a new server to the system and rebalance the objects.
 void loader_add_server(load_balancer* main, int server_id) {
 	DIE(!main, "Didn't receive load_balancer!\n");
@@ -334,8 +337,34 @@ void loader_add_server(load_balancer* main, int server_id) {
     int label_1 = REPLICA * 0 + server_id;
     int label_2 = REPLICA * 1 + server_id;
     int label_3 = REPLICA * 2 + server_id;
+    
+    int n =  main->current_hashring_items;
+    int* indexes = calloc(n, sizeof(int));
+    for(int i=0;i<main->current_hashring_items;i++) {
+        indexes[i] = main->hashring[i]->server_index;
+    }
+    
+    // Problem
+    qsort(indexes, main->current_hashring_items, sizeof(int), cmpfunc);
 
-    int server_index = main->max_server_index++;
+    int my_server_id = -1;
+    for(int i=0;i<main->current_hashring_items;i++) {
+        if(i/3 != indexes[i]) {
+            my_server_id = i/3;
+            break;
+        }
+    }    // 0 0 0 2 2 2 3 3 3 4 4 4
+
+    if(my_server_id == -1) {
+        if(main->current_hashring_items > 0)
+            my_server_id = main->current_hashring_items / 3;
+        else
+            my_server_id = 0;
+    }
+
+    int server_index = my_server_id;
+    if(my_server_id == main->num_servers)
+        fprintf(stderr,"Need to resize!\n"),exit(EXIT_FAILURE);
    // printf("SERVER HASH %d %u %u %u\n",server_id,hash_function_servers(&label_1),hash_function_servers(&label_2),hash_function_servers(&label_3));
     // Find the position
     add_server_by_label(main, label_1, server_id, server_index);

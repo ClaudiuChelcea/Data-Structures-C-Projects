@@ -1,7 +1,6 @@
 /* Copyright Chelcea Claudiu-Marian */
 #include <stdlib.h>
 #include <string.h>
-
 #include "server.h"
 
 server_memory* init_server_memory() {

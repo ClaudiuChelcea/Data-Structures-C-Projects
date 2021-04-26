@@ -163,8 +163,8 @@ char* loader_retrieve(load_balancer* main, char* key, int* server_id) {
 
         for(int r = value_index; r < max; r++) {
             int pos = r % MAX_SERVER_ITEMS;
-            if(strcmp(main->load_balancer_data[0][pos]->server_keys,key) == 0)
-                return main->load_balancer_data[0][pos]->server_items;
+            if(strcmp(main->load_balancer_data[main->hashring[0]->server_index][pos]->server_keys,key) == 0)
+                return main->load_balancer_data[main->hashring[0]->server_index][pos]->server_items;
         }
         return NULL;
     }

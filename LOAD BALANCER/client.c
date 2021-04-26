@@ -4,7 +4,7 @@
 #include <ctype.h>
 #define MAX_SERVER_ITEMS 1000
 
-int debug = 1;
+int debug = 0;
 
 // Get element value from request
 void get_key_value(char* key, char* value, char* request)

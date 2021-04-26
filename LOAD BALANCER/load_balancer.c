@@ -402,9 +402,9 @@ void move_server_items(load_balancer* main, int index_replica_id, int server_id)
                 int start = key_hash % MAX_SERVER_ITEMS;
                 for(int r=start; r< start + MAX_SERVER_ITEMS; r++) {
                     int pos = r % MAX_SERVER_ITEMS;
-                    if(strcmp(main->load_balancer_data[0][pos]->server_items, "") == 0) {
-                        strcpy(main->load_balancer_data[0][pos]->server_items,main->load_balancer_data[main->hashring[index_replica_id]->server_index][i]->server_items);
-                        strcpy(main->load_balancer_data[0][pos]->server_keys,main->load_balancer_data[main->hashring[index_replica_id]->server_index][i]->server_keys);
+                    if(strcmp(main->load_balancer_data[main->hashring[0]->server_index][pos]->server_items, "") == 0) {
+                        strcpy(main->load_balancer_data[main->hashring[0]->server_index][pos]->server_items,main->load_balancer_data[main->hashring[index_replica_id]->server_index][i]->server_items);
+                        strcpy(main->load_balancer_data[main->hashring[0]->server_index][pos]->server_keys,main->load_balancer_data[main->hashring[index_replica_id]->server_index][i]->server_keys);
                         strcpy(main->load_balancer_data[main->hashring[index_replica_id]->server_index][i]->server_keys,"");
                         strcpy(main->load_balancer_data[main->hashring[index_replica_id]->server_index][i]->server_items,"");
                         break;

@@ -70,8 +70,6 @@ void apply_requests(FILE *input_file)
 	// Scan command
 	while (fgets(request, REQUEST_LENGTH, input_file)) {
 		request[strlen(request) - 1] = 0;
-		static int i = 0;
-		++i;
 
 		// Store item
 		if (!strncmp(request, "store", sizeof("store") - 1)) {

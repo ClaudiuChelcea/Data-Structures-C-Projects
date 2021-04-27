@@ -5,7 +5,7 @@
 #include <ctype.h>
 #include "load_balancer.h"
 
-#define STARTING_SERVERS 300
+#define STARTING_SERVERS 125
 #define MAX_SERVER_ITEMS 1000
 
 unsigned int hash_function_servers(void *a)
@@ -535,6 +535,53 @@ static int cmpfunc(const void *a, const void *b)
 	return *(int *)a - *(int *)b;
 }
 
+// Resize the load balancer
+void resize_load_balancer(load_balancer_t** main)
+{
+	// Save data
+	(*main)->num_servers = (*main)->num_servers * 2;
+	(*main)->hashring = realloc((*main)->hashring, (*main)->num_servers * 3 *
+     sizeof(struct server_pointer *));
+    (*main)->load_balancer_data = realloc((*main)->load_balancer_data,
+    (*main)->num_servers * sizeof(server_memory_t **));
+    DIE(!(*main)->hashring || !(*main)->load_balancer_data, "Couldn't resize!");
+
+	// Allocate the other servers
+	for (int i = (*main)->num_servers / 2; i <= (*main)->num_servers; i++) {
+		// Allocate three spaces in the hashring at a time
+		(*main)->hashring[i * 3] = NULL;
+		(*main)->hashring[i * 3] =
+			calloc(1, sizeof(struct server_pointer));
+		(*main)->hashring[i * 3]->server_index = -1;
+		(*main)->hashring[i * 3]->server_label = -1;
+		(*main)->hashring[i * 3]->real_server_index = -1;
+		(*main)->hashring[i * 3 + 1] = NULL;
+		(*main)->hashring[i * 3 + 1] =
+			calloc(1, sizeof(struct server_pointer));
+		(*main)->hashring[i * 3 + 1]->server_index = -1;
+		(*main)->hashring[i * 3 + 1]->server_label = -1;
+		(*main)->hashring[i * 3 + 1]->real_server_index = -1;
+		(*main)->hashring[i * 3 + 2] = NULL;
+		(*main)->hashring[i * 3 + 2] =
+			calloc(1, sizeof(struct server_pointer));
+		(*main)->hashring[i * 3 + 2]->server_index = -1;
+		(*main)->hashring[i * 3 + 2]->server_label = -1;
+		(*main)->hashring[i * 3 + 2]->real_server_index = -1;
+
+		// Allocate server's items
+		(*main)->load_balancer_data[i] =
+			calloc(1, MAX_SERVER_ITEMS * sizeof(sizeof(server_memory_t *)));
+		for (int j = 0; j < MAX_SERVER_ITEMS; j++) {
+			(*main)->load_balancer_data[i][j] = NULL;
+			(*main)->load_balancer_data[i][j] = init_server_memory();
+			strncpy((*main)->load_balancer_data[i][j]->server_items,
+					"", 1);
+			strncpy((*main)->load_balancer_data[i][j]->server_keys, "",
+					1);
+		}
+	}
+}
+
 // Add a new server to the system and rebalance the objects.
 void loader_add_server(load_balancer *main, int server_id)
 {
@@ -581,6 +628,10 @@ void loader_add_server(load_balancer *main, int server_id)
 
 	int server_index = my_server_id;
 
+    if (server_index >= main->num_servers) {;
+        resize_load_balancer(&main);
+    }
+
 	// Add replicas
 	add_server_by_label(main, label_1, server_id, server_index);
 	add_server_by_label(main, label_2, server_id, server_index);
@@ -594,8 +645,7 @@ void move_server_items(load_balancer *main, int index_replica_id, int server_id)
 	for (int i = 0; i < MAX_SERVER_ITEMS; i++) {
 		// Get all items on the server
 		if (strcmp(main->load_balancer_data[main->hashring[index_replica_id]
-					->server_index][i]->server_items,
-				   "") != 0) {
+		    ->server_index][i]->server_items,  "") != 0) {
 			// Rellocate them on the next server
 			int index_new_server = -1;
 
@@ -644,7 +694,8 @@ void move_server_items(load_balancer *main, int index_replica_id, int server_id)
 				int start = key_hash % MAX_SERVER_ITEMS;
 				for (int r = start; r < start + MAX_SERVER_ITEMS; r++) {
 					int pos = r % MAX_SERVER_ITEMS;
-					if (strcmp(main->load_balancer_data[index_new_server][pos]
+					if (strcmp(main->load_balancer_data[main->
+                        hashring[index_new_server]->server_index][pos]
 					    ->server_items, "") == 0) {
 						server_store(main->load_balancer_data[main->
                         hashring[index_new_server]->server_index][pos],

@@ -3,5 +3,8 @@ loadApp
 *.h.gch
 *.in
 *.ref
+README*
+in*
+here*
 
 

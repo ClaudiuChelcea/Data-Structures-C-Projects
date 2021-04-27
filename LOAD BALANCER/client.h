@@ -1,7 +1,7 @@
 /* Copyright Chelcea Claudiu-Marian */
 
-#ifndef CHECKER_CLIENT_H_
-#define CHECKER_CLIENT_H_
+#ifndef CLIENT_H_
+#define CLIENT_H_
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,4 +16,4 @@ void get_key(char *key, char *request);
 // Get element value from request
 void get_key_value(char *key, char *value, char *request);
 
-#endif  // CHECKER_CLIENT_H_
+#endif  // CLIENT_H_

@@ -51,7 +51,8 @@ load_balancer *init_load_balancer()
 		"Couldn't create load balancer!\n");
 
 	// Allocate initial servers
-	for (int i = 0; i < my_load_balancer->num_servers; i++) {
+	int i = 0, j = 0;
+	for (i = 0; i < my_load_balancer->num_servers; i++) {
 		// Allocate three spaces in the hashring at a time
 		my_load_balancer->hashring[i * 3] = NULL;
 		my_load_balancer->hashring[i * 3] =
@@ -75,7 +76,7 @@ load_balancer *init_load_balancer()
 		// Allocate server's items
 		my_load_balancer->load_balancer_data[i] =
 			calloc(1, MAX_SERVER_ITEMS * sizeof(sizeof(server_memory_t *)));
-		for (int j = 0; j < MAX_SERVER_ITEMS; j++) {
+		for (j = 0; j < MAX_SERVER_ITEMS; j++) {
 			my_load_balancer->load_balancer_data[i][j] = NULL;
 			my_load_balancer->load_balancer_data[i][j] = init_server_memory();
 			strncpy(my_load_balancer->load_balancer_data[i][j]->server_items,
@@ -103,8 +104,9 @@ void loader_store(load_balancer *main, char *key, char *value, int *server_id)
 	// Find the index to of the server to store on
 	int found_server = -1;
 	int found_server_hashring_index = -1;
+	int i = 0, r = 0;
 	// Get the server to store the data on
-	for (int i = 0; i < main->current_hashring_items; i++) {
+	for (i = 0; i < main->current_hashring_items; i++) {
 		if (key_hash <=
 			hash_function_servers(&main->hashring[i]->server_label)) {
 			found_server = main->hashring[i]->server_index;
@@ -118,7 +120,7 @@ void loader_store(load_balancer *main, char *key, char *value, int *server_id)
 	if (found_server == -1) {
 		// Get value's index
 		int value_index = key_hash % MAX_SERVER_ITEMS;
-		for (int r = value_index; r < value_index + MAX_SERVER_ITEMS;
+		for (r = value_index; r < value_index + MAX_SERVER_ITEMS;
 			 r++) {  // linear probing check for the first empty spot
 			int pos = r % MAX_SERVER_ITEMS;
 			// If the spot is empty, store the value there
@@ -134,7 +136,7 @@ void loader_store(load_balancer *main, char *key, char *value, int *server_id)
 
 	} else {  // Else place it at a certain index
 		int value_index = key_hash % MAX_SERVER_ITEMS;
-		for (int r = value_index; r < value_index + MAX_SERVER_ITEMS;
+		for (r = value_index; r < value_index + MAX_SERVER_ITEMS;
 			 r++) {  // linear probing check for the first empty spot
 			int pos = r % MAX_SERVER_ITEMS;
 			if (strcmp(main->load_balancer_data[found_server][pos]->server_keys,
@@ -162,9 +164,10 @@ char *loader_retrieve(load_balancer *main, char *key, int *server_id)
 
 	int found_server_hashring_index = -1;
 	*server_id = -1;
+	int i = 0, r = 0;
 
 	// Get the server to store the data on
-	for (int i = 0; i < main->current_hashring_items; i++) {
+	for (i = 0; i < main->current_hashring_items; i++) {
 		if (key_hash <=
 			hash_function_servers(&main->hashring[i]->server_label)) {
 			found_server_hashring_index = i;
@@ -181,7 +184,7 @@ char *loader_retrieve(load_balancer *main, char *key, int *server_id)
 		int max = value_index + MAX_SERVER_ITEMS;
 		*server_id = main->hashring[0]->real_server_index;
 
-		for (int r = value_index; r < max; r++) {  // apply linear probing
+		for (r = value_index; r < max; r++) {  // apply linear probing
 			int pos = r % MAX_SERVER_ITEMS;
 			char *result = NULL;
 			result = server_retrieve(
@@ -199,7 +202,7 @@ char *loader_retrieve(load_balancer *main, char *key, int *server_id)
 		*server_id =
 			main->hashring[found_server_hashring_index]->real_server_index;
 
-		for (int r = value_index; r < max; r++) {  // Apply linear probing
+		for (r = value_index; r < max; r++) {  // Apply linear probing
 			int pos = r % MAX_SERVER_ITEMS;
 			if (strcmp(main->load_balancer_data[sv_index][pos]->server_keys,
 					   key) == 0)
@@ -218,7 +221,8 @@ void add_server_by_label(load_balancer *main, int server_label, int server_id,
 
 	// Search the current servers for an index
 	int index = -1;
-	for (int i = 0; i < main->current_hashring_items; i++) {
+	int i = 0, j = 0, r = 0;
+	for (i = 0; i < main->current_hashring_items; i++) {
 		if ((unsigned int)label__hash <=
 			(unsigned int)hash_function_servers(
 				&main->hashring[i]->server_label)) {
@@ -257,7 +261,7 @@ void add_server_by_label(load_balancer *main, int server_label, int server_id,
 			// hashring)
 
 			// LAST ELEMENT
-			for (int j = 0; j < MAX_SERVER_ITEMS; j++) {
+			for (j = 0; j < MAX_SERVER_ITEMS; j++) {
 				if (strcmp(main->load_balancer_data[main->hashring[main->
                 current_hashring_items - 1]->server_index][j]->server_items,
                 "") != 0) {
@@ -271,7 +275,7 @@ void add_server_by_label(load_balancer *main, int server_label, int server_id,
                         hashring[main->current_hashring_items - 1]
 						->server_label)) {
 						int start = key_hash % MAX_SERVER_ITEMS;
-						for (int r = start; r < start + MAX_SERVER_ITEMS;
+						for (r = start; r < start + MAX_SERVER_ITEMS;
 							 r++) {  // apply linear probing
 							int pos = r % MAX_SERVER_ITEMS;
 							// If we find an item, move it
@@ -300,7 +304,7 @@ void add_server_by_label(load_balancer *main, int server_label, int server_id,
 			}
 
 			// FIRST ELEMENT
-			for (int j = 0; j < MAX_SERVER_ITEMS; j++) {
+			for (j = 0; j < MAX_SERVER_ITEMS; j++) {
 				if (strcmp(main->load_balancer_data[main->hashring[0]
 					->server_index][j]->server_items, "") != 0) {
 					unsigned int key_hash = hash_function_key(
@@ -312,7 +316,7 @@ void add_server_by_label(load_balancer *main, int server_label, int server_id,
 						&main->hashring[main->current_hashring_items - 2]
 						->server_label)) {
 						int start = key_hash % MAX_SERVER_ITEMS;
-						for (int r = start; r < start + MAX_SERVER_ITEMS;
+						for (r = start; r < start + MAX_SERVER_ITEMS;
 							 r++) {  // apply linear probing
 							int pos = r % MAX_SERVER_ITEMS;
 							// If we find an item, move it
@@ -340,7 +344,7 @@ void add_server_by_label(load_balancer *main, int server_label, int server_id,
 				 label__hash < (unsigned int)hash_function_servers(
 								   &main->hashring[0]->server_label)) {
 			// Add first new_server;
-			for (int i = main->current_hashring_items; i >= 1; i--) {
+			for (i = main->current_hashring_items; i >= 1; i--) {
 				main->hashring[i]->server_index =
 					main->hashring[i - 1]->server_index;
 				main->hashring[i]->server_label =
@@ -355,7 +359,7 @@ void add_server_by_label(load_balancer *main, int server_label, int server_id,
 		}
 	} else {  // Add in between the elements
 		// Move all server pointers from index to the right
-		for (int i = main->current_hashring_items; i > index; i--) {
+		for (i = main->current_hashring_items; i > index; i--) {
 			main->hashring[i]->server_index =
 				main->hashring[i - 1]->server_index;
 			main->hashring[i]->real_server_index =
@@ -373,7 +377,7 @@ void add_server_by_label(load_balancer *main, int server_label, int server_id,
 		main->current_hashring_items = main->current_hashring_items + 1;
 
 		// Rebalance
-		for (int i = 0; i < MAX_SERVER_ITEMS; i++) {
+		for (i = 0; i < MAX_SERVER_ITEMS; i++) {
 			// Get all items on the server
 			if (strcmp(main->load_balancer_data[main->hashring[index + 1]
 						->server_index][i]->server_items, "") != 0) {
@@ -405,7 +409,7 @@ void add_server_by_label(load_balancer *main, int server_label, int server_id,
 
 						} else {  // else apply linear probing
 							int start = key_hash % MAX_SERVER_ITEMS;
-							for (int r = start; r < start + MAX_SERVER_ITEMS;
+							for (r = start; r < start + MAX_SERVER_ITEMS;
 								 r++) {
 								int pos = r % MAX_SERVER_ITEMS;
 								if (strcmp(main->load_balancer_data[main->
@@ -449,7 +453,7 @@ void add_server_by_label(load_balancer *main, int server_label, int server_id,
 
 						} else {  // else apply linear probing
 							int start = key_hash % MAX_SERVER_ITEMS;
-							for (int r = start; r < start + MAX_SERVER_ITEMS;
+							for (r = start; r < start + MAX_SERVER_ITEMS;
 								r++) {
 								int pos = r % MAX_SERVER_ITEMS;
 								if (strcmp(main->load_balancer_data[main->
@@ -499,7 +503,7 @@ void add_server_by_label(load_balancer *main, int server_label, int server_id,
 
 						} else {  // else apply linear probing
 							int start = key_hash % MAX_SERVER_ITEMS;
-							for (int r = start; r < start + MAX_SERVER_ITEMS;
+							for (r = start; r < start + MAX_SERVER_ITEMS;
 								 r++) {
 								int pos = r % MAX_SERVER_ITEMS;
 								if (strcmp(main->load_balancer_data
@@ -547,7 +551,8 @@ void resize_load_balancer(load_balancer_t** main)
     DIE(!(*main)->hashring || !(*main)->load_balancer_data, "Couldn't resize!");
 
 	// Allocate the other servers
-	for (int i = (*main)->num_servers / 2; i <= (*main)->num_servers; i++) {
+	int i = 0, j = 0;
+	for (i = (*main)->num_servers / 2; i <= (*main)->num_servers; i++) {
 		// Allocate three spaces in the hashring at a time
 		(*main)->hashring[i * 3] = NULL;
 		(*main)->hashring[i * 3] =
@@ -571,7 +576,7 @@ void resize_load_balancer(load_balancer_t** main)
 		// Allocate server's items
 		(*main)->load_balancer_data[i] =
 			calloc(1, MAX_SERVER_ITEMS * sizeof(sizeof(server_memory_t *)));
-		for (int j = 0; j < MAX_SERVER_ITEMS; j++) {
+		for (j = 0; j < MAX_SERVER_ITEMS; j++) {
 			(*main)->load_balancer_data[i][j] = NULL;
 			(*main)->load_balancer_data[i][j] = init_server_memory();
 			strncpy((*main)->load_balancer_data[i][j]->server_items,
@@ -591,6 +596,7 @@ void loader_add_server(load_balancer *main, int server_id)
 	int label_1 = REPLICA * 0 + server_id;
 	int label_2 = REPLICA * 1 + server_id;
 	int label_3 = REPLICA * 2 + server_id;
+	int i = 0;
 
 	// Create an array of indexes and sort it to find the missing positive
 	// integer in the array, which will represent the server index.
@@ -598,7 +604,7 @@ void loader_add_server(load_balancer *main, int server_id)
 	// at the end
 	int n = main->current_hashring_items;
 	int *indexes = calloc(n, sizeof(int));
-	for (int i = 0; i < main->current_hashring_items; i++) {
+	for (i = 0; i < main->current_hashring_items; i++) {
 		indexes[i] = main->hashring[i]->server_index;
 	}
 
@@ -607,7 +613,7 @@ void loader_add_server(load_balancer *main, int server_id)
 
 	// Find missing positive integer
 	int my_server_id = -1;
-	for (int i = 0; i < main->current_hashring_items; i++) {
+	for (i = 0; i < main->current_hashring_items; i++) {
 		if (i / 3 != indexes[i]) {
 			my_server_id = i / 3;
 			break;
@@ -642,7 +648,8 @@ void loader_add_server(load_balancer *main, int server_id)
 void move_server_items(load_balancer *main, int index_replica_id, int server_id)
 {
 	// Move all elements to the next server in the hash ring
-	for (int i = 0; i < MAX_SERVER_ITEMS; i++) {
+	int i = 0, j = 0, r = 0;
+	for (i = 0; i < MAX_SERVER_ITEMS; i++) {
 		// Get all items on the server
 		if (strcmp(main->load_balancer_data[main->hashring[index_replica_id]
 		    ->server_index][i]->server_items,  "") != 0) {
@@ -655,7 +662,7 @@ void move_server_items(load_balancer *main, int index_replica_id, int server_id)
 				->server_index][i]->server_keys);
 
 			// Find the first server bigger than him
-			for (int j = 0; j < main->current_hashring_items; j++) {
+			for (j = 0; j < main->current_hashring_items; j++) {
 				if (server_id == main->hashring[j]->real_server_index)
 					continue;
 				if (key_hash <
@@ -670,7 +677,7 @@ void move_server_items(load_balancer *main, int index_replica_id, int server_id)
 			if (index_new_server == -1 &&
 				main->current_hashring_items / 3 > 0) {
 				int start = key_hash % MAX_SERVER_ITEMS;
-				for (int r = start; r < start + MAX_SERVER_ITEMS; r++) {
+				for (r = start; r < start + MAX_SERVER_ITEMS; r++) {
 					int pos = r % MAX_SERVER_ITEMS;
 					if (strcmp(main->load_balancer_data[main->
                     hashring[0]->server_index][pos]->server_items, "") == 0) {
@@ -692,7 +699,7 @@ void move_server_items(load_balancer *main, int index_replica_id, int server_id)
 
 			} else {  // add it to the requested server
 				int start = key_hash % MAX_SERVER_ITEMS;
-				for (int r = start; r < start + MAX_SERVER_ITEMS; r++) {
+				for (r = start; r < start + MAX_SERVER_ITEMS; r++) {
 					int pos = r % MAX_SERVER_ITEMS;
 					if (strcmp(main->load_balancer_data[main->
                         hashring[index_new_server]->server_index][pos]
@@ -723,7 +730,8 @@ void move_server_items(load_balancer *main, int index_replica_id, int server_id)
 void destroy_replica(load_balancer *main, int index_replica_id)
 {
 	// Remove server
-	for (int i = index_replica_id; i < main->current_hashring_items; i++) {
+	int i = 0;
+	for (i = index_replica_id; i < main->current_hashring_items; i++) {
 		main->hashring[i]->server_index = main->hashring[i + 1]->server_index;
 		main->hashring[i]->server_label = main->hashring[i + 1]->server_label;
 		main->hashring[i]->real_server_index =
@@ -800,7 +808,8 @@ void loader_remove_server(load_balancer *main, int server_id)
 	int index_replica_id_0 = -1;
 	int index_replica_id_1 = -1;
 	int index_replica_id_2 = -1;
-	for (int i = 0; i < main->current_hashring_items; i++) {
+	int i = 0;
+	for (i = 0; i < main->current_hashring_items; i++) {
 		if (server_id == main->hashring[i]->real_server_index) {
 			// We will find tree indexes, since this is the the saving method
 			// a server + 2 replicas
@@ -824,8 +833,9 @@ void loader_remove_server(load_balancer *main, int server_id)
 void free_load_balancer(load_balancer *my_load_balancer)
 {
 	// Release servers and hashring
-	for (int i = 0; i < my_load_balancer->num_servers; i++) {
-		for (int j = 0; j < MAX_SERVER_ITEMS; j++) {
+	int i = 0, j = 0;
+	for (i = 0; i < my_load_balancer->num_servers; i++) {
+		for (j = 0; j < MAX_SERVER_ITEMS; j++) {
 			if (my_load_balancer->load_balancer_data[i][j]) {
 				free_server_memory(my_load_balancer->load_balancer_data[i][j]);
 				my_load_balancer->load_balancer_data[i][j] = NULL;

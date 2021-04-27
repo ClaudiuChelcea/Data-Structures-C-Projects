@@ -1,7 +1,7 @@
 /* Copyright Chelcea Claudiu-Marian */
 
-#ifndef CHECKER_LOAD_BALANCER_H_
-#define CHECKER_LOAD_BALANCER_H_
+#ifndef LOAD_BALANCER_H_
+#define LOAD_BALANCER_H_
 #define REQUEST_LENGTH 1024
 #define KEY_LENGTH 128
 #define REPLICA 100000
@@ -79,4 +79,4 @@ void loader_add_server(load_balancer *main, int server_id);
  */
 void loader_remove_server(load_balancer *main, int server_id);
 
-#endif  // CHECKER_LOAD_BALANCER_H_
+#endif  // LOAD_BALANCER_H_

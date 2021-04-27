@@ -33,16 +33,16 @@ load_balancer * init_load_balancer()
 {
     // Create load balancer
     load_balancer * my_load_balancer = NULL;
-    my_load_balancer = malloc(sizeof(load_balancer));
+    my_load_balancer = calloc(1, sizeof(load_balancer));
     DIE(!my_load_balancer, "Couldn't create load balancer!\n");
 
     // Save data
     my_load_balancer -> num_servers = STARTING_SERVERS;
     my_load_balancer -> current_hashring_items = 0;
     my_load_balancer -> hashring = NULL;
-    my_load_balancer -> hashring = malloc(STARTING_SERVERS * 3 * sizeof(struct server_pointer * ));
+    my_load_balancer -> hashring = calloc(1, STARTING_SERVERS * 3 * sizeof(struct server_pointer * ));
     my_load_balancer -> load_balancer_data = NULL;
-    my_load_balancer -> load_balancer_data = malloc(STARTING_SERVERS * sizeof(server_memory_t ** ));
+    my_load_balancer -> load_balancer_data = calloc(1, STARTING_SERVERS * sizeof(server_memory_t ** ));
     DIE(!my_load_balancer -> hashring || !my_load_balancer -> load_balancer_data, "Couldn't create load balancer!\n");
 
     // Allocate initial servers
@@ -50,23 +50,23 @@ load_balancer * init_load_balancer()
 
         // Allocate three spaces in the hashring at a time
           my_load_balancer -> hashring[i * 3] = NULL;
-        my_load_balancer -> hashring[i * 3] = malloc(sizeof(struct server_pointer));
+        my_load_balancer -> hashring[i * 3] = calloc(1, sizeof(struct server_pointer));
         my_load_balancer -> hashring[i * 3] -> server_index = -1;
         my_load_balancer -> hashring[i * 3] -> server_label = -1;
         my_load_balancer -> hashring[i * 3] -> real_server_index = -1;
         my_load_balancer -> hashring[i * 3 + 1] = NULL;
-        my_load_balancer -> hashring[i * 3 + 1] = malloc(sizeof(struct server_pointer));
+        my_load_balancer -> hashring[i * 3 + 1] = calloc(1, sizeof(struct server_pointer));
         my_load_balancer -> hashring[i * 3 + 1] -> server_index = -1;
         my_load_balancer -> hashring[i * 3 + 1] -> server_label = -1;
         my_load_balancer -> hashring[i * 3 + 1] -> real_server_index = -1;
         my_load_balancer -> hashring[i * 3 + 2] = NULL;
-        my_load_balancer -> hashring[i * 3 + 2] = malloc(sizeof(struct server_pointer));
+        my_load_balancer -> hashring[i * 3 + 2] = calloc(1, sizeof(struct server_pointer));
         my_load_balancer -> hashring[i * 3 + 2] -> server_index = -1;
         my_load_balancer -> hashring[i * 3 + 2] -> server_label = -1;
         my_load_balancer -> hashring[i * 3 + 2] -> real_server_index = -1;
 
         // Allocate server's items
-        my_load_balancer -> load_balancer_data[i] = malloc(MAX_SERVER_ITEMS * sizeof(sizeof(server_memory_t * )));
+        my_load_balancer -> load_balancer_data[i] = calloc(1, MAX_SERVER_ITEMS * sizeof(sizeof(server_memory_t * )));
         for (int j = 0; j < MAX_SERVER_ITEMS; j++) {
             my_load_balancer -> load_balancer_data[i][j] = NULL;
             my_load_balancer -> load_balancer_data[i][j] = init_server_memory();

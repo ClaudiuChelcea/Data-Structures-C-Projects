@@ -18,8 +18,6 @@ int main(int argc, char * argv[])
 
 	// Open the file
     input = fopen(argv[1], "rt");
-	// input = fopen("in", "rt");
-
     DIE(input == NULL, "missing input file");
 
     // Execute the commands

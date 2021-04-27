@@ -7,7 +7,7 @@
 server_memory * init_server_memory() {
     // The server
     server_memory * my_server = NULL;
-    my_server = malloc(sizeof(server_memory_t));
+    my_server = calloc(1, sizeof(server_memory_t));
     return my_server;
 }
 
@@ -32,7 +32,7 @@ char * server_retrieve(server_memory * server, char * key) {
 	
     if (!server || !key)
         return NULL;
-        
+
     if (strcmp(server -> server_keys, key) == 0)
         return server -> server_items;
     return NULL;

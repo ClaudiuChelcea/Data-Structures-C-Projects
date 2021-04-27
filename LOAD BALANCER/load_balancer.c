@@ -3,7 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "load_balancer.h"
-#define STARTING_SERVERS 200
+#define STARTING_SERVERS 600
 #define MAX_SERVER_ITEMS 1000
 
 unsigned int hash_function_servers(void *a) {
@@ -363,7 +363,7 @@ void add_server_by_label(load_balancer* main, int server_label, int server_id, i
                     }
                 }
                 else if(index == 0) {
-                    int server_index_last = main->current_hashring_items / 3;
+                    int server_index_last = main->hashring[main->current_hashring_items-1]->server_label;
                     if(key_hash < label__hash || key_hash > hash_function_servers(&server_index_last)) {
                         if(strcmp(main->load_balancer_data[main->hashring[index]->server_index][key_hash % MAX_SERVER_ITEMS]->server_items,"") ==0) {
                                 strcpy(main->load_balancer_data[main->hashring[index]->server_index][key_hash % MAX_SERVER_ITEMS]->server_items,main->load_balancer_data[main->hashring[index+1]->server_index][i]->server_items);

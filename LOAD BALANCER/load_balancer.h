@@ -3,7 +3,7 @@
 #define LOAD_BALANCER_H_
 #define REQUEST_LENGTH 1024
 #define KEY_LENGTH 128
-#define VALUE_LENGTH 65536
+#define VALUE_LENGTH 400
 #define REPLICA 100000
 
 #include "utils.h"

@@ -122,14 +122,10 @@ void loader_store(load_balancer *main, char *key, char *value, int *server_id)
 			 r++) {  // linear probing check for the first empty spot
 			int pos = r % MAX_SERVER_ITEMS;
 			// If the spot is empty, store the value there
-			if (strcmp(main->load_balancer_data[main->hashring[0]->server_index]
-											   [pos]
-												   ->server_keys,
-					   "") == 0) {
-				server_store(
-					main->load_balancer_data[main->hashring[0]->server_index]
-											[pos],
-					key, value);
+			if (strcmp(main->load_balancer_data[main->
+                hashring[0]->server_index][pos]->server_keys, "") == 0) {
+				server_store(main->load_balancer_data[main->hashring[0]->
+                server_index][pos], key, value);
 				break;
 			}
 		}
@@ -149,8 +145,8 @@ void loader_store(load_balancer *main, char *key, char *value, int *server_id)
 			}
 		}
 		// Add to certain server
-		*server_id =
-			main->hashring[found_server_hashring_index]->real_server_index;
+		*server_id = main->hashring[found_server_hashring_index]->
+        real_server_index;
 	}
 }
 
@@ -265,10 +261,11 @@ void add_server_by_label(load_balancer *main, int server_label, int server_id,
 				if (strcmp(main->load_balancer_data[main->hashring[main->
                 current_hashring_items - 1]->server_index][j]->server_items,
                 "") != 0) {
-					unsigned int key_hash = hash_function_key(
-						&main->load_balancer_data[main->hashring[main->
-                        current_hashring_items - 1]->server_index][j]
-						->server_keys);
+					unsigned int key_hash = hash_function_key(&main->
+                    load_balancer_data[main->hashring[main->
+                    current_hashring_items - 1]->server_index][j]->
+                    server_keys);
+
 					if (key_hash < hash_function_servers(&server_label) &&
 						key_hash > hash_function_servers(&main->
                         hashring[main->current_hashring_items - 1]
@@ -278,32 +275,23 @@ void add_server_by_label(load_balancer *main, int server_label, int server_id,
 							 r++) {  // apply linear probing
 							int pos = r % MAX_SERVER_ITEMS;
 							// If we find an item, move it
-							if (strcmp(
-									main->load_balancer_data[server_index][pos]
-										->server_items,
-									"") == 0) {
-								server_store(
-									main->load_balancer_data[server_index][pos],
-									main->load_balancer_data
-										[main->hashring
-											 [main->current_hashring_items - 1]
-												 ->server_index][j]
-											->server_keys,
-									main->load_balancer_data
-										[main->hashring
-											 [main->current_hashring_items - 1]
-												 ->server_index][j]
-											->server_items);
-								server_remove(
-									main->load_balancer_data
-										[main->hashring
-											 [main->current_hashring_items - 1]
-												 ->server_index][j],
-									main->load_balancer_data
-										[main->hashring
-											 [main->current_hashring_items - 1]
-												 ->server_index][j]
-											->server_keys);
+							if (strcmp(main->
+                            load_balancer_data[server_index][pos]->
+                            server_items, "") == 0) {
+								server_store(main->
+                                load_balancer_data[server_index][pos], main->
+                                load_balancer_data[main->hashring[main->
+                                current_hashring_items - 1]->server_index][j]
+								->server_keys, main->load_balancer_data[main->
+                                hashring[main->current_hashring_items - 1]->
+                                server_index][j]->server_items);
+
+								server_remove(main->load_balancer_data[main->
+                                hashring[main->current_hashring_items - 1]->
+                                server_index][j], main->load_balancer_data
+								[main->hashring[main->
+                                current_hashring_items - 1]->server_index][j]
+								->server_keys);
 								break;
 							}
 						}
@@ -331,14 +319,13 @@ void add_server_by_label(load_balancer *main, int server_label, int server_id,
 							if (strcmp(main->
                             load_balancer_data[server_index][pos]
 							->server_items, "") == 0) {
-								server_store(
-									main->
-                                    load_balancer_data[server_index][pos],
-									main->load_balancer_data[main->
-                                    hashring[0]->server_index][j]->server_keys,
-									main->load_balancer_data[main
-                                    ->hashring[0]->server_index][j]
-											->server_items);
+								server_store(main->
+                                load_balancer_data[server_index][pos], main->
+                                load_balancer_data[main->hashring[0]->
+                                server_index][j]->server_keys, main->
+                                load_balancer_data[main->
+                                hashring[0]->server_index][j]->server_items);
+
 								server_remove(main->load_balancer_data[main->
                                 hashring[0]->server_index][j], main->
                                 load_balancer_data[main->
@@ -383,7 +370,6 @@ void add_server_by_label(load_balancer *main, int server_label, int server_id,
 		main->hashring[index]->server_index = server_index;
 		main->hashring[index]->server_label = server_label;
 		main->hashring[index]->real_server_index = server_id;
-
 		main->current_hashring_items = main->current_hashring_items + 1;
 
 		// Rebalance
@@ -399,118 +385,89 @@ void add_server_by_label(load_balancer *main, int server_label, int server_id,
 				// If key's hash is smaller than the next server and if it's
 				// bigger than the newly added server
 				if (key_hash < label__hash) {
-					if (index &&
-						key_hash >
-							hash_function_servers(
-								&main->hashring[index - 1]->server_label)) {
+					if (index &&key_hash > hash_function_servers(&main->
+                    hashring[index - 1]->server_label)) {
 						// If the location is empty, fill it
-						if (strcmp(main->load_balancer_data
-									   [main->hashring[index]->server_index]
-									   [key_hash % MAX_SERVER_ITEMS]
-										   ->server_items,
-								   "") == 0) {
-							server_store(
-								main->load_balancer_data
-									[main->hashring[index]->server_index]
-									[key_hash % MAX_SERVER_ITEMS],
-								main->load_balancer_data
-									[main->hashring[index + 1]->server_index][i]
-										->server_keys,
-								main->load_balancer_data
-									[main->hashring[index + 1]->server_index][i]
-										->server_items);
-							server_remove(
-								main->load_balancer_data
-									[main->hashring[index + 1]->server_index]
-									[i],
-								main->load_balancer_data
-									[main->hashring[index + 1]->server_index][i]
-										->server_keys);
+						if (strcmp(main->load_balancer_data[main->
+                        hashring[index]->server_index][key_hash %
+                        MAX_SERVER_ITEMS]->server_items, "") == 0) {
+							server_store(main->load_balancer_data[main->
+                            hashring[index]->server_index][key_hash %
+                            MAX_SERVER_ITEMS], main->load_balancer_data
+							[main->hashring[index + 1]->server_index][i]
+							->server_keys, main->load_balancer_data[main->
+                            hashring[index + 1]->server_index][i]->
+                            server_items);
+							server_remove(main->load_balancer_data[main->
+                            hashring[index + 1]->server_index][i], main->
+                            load_balancer_data[main->hashring[index + 1]->
+                            server_index][i]->server_keys);
 
 						} else {  // else apply linear probing
 							int start = key_hash % MAX_SERVER_ITEMS;
 							for (int r = start; r < start + MAX_SERVER_ITEMS;
 								 r++) {
 								int pos = r % MAX_SERVER_ITEMS;
-								if (strcmp(main->load_balancer_data
-											   [main->hashring[index]
-													->server_index][pos]
-												   ->server_items,
-										   "") == 0) {
+								if (strcmp(main->load_balancer_data[main->
+                                hashring[index]->server_index][pos]->
+                                server_items, "") == 0) {
 									server_store(main->load_balancer_data
-													 [main->hashring[index]
-														  ->server_index][pos],
-												 main->load_balancer_data
-													 [main->hashring[index + 1]
-														  ->server_index][i]
-														 ->server_keys,
-												 main->load_balancer_data
-													 [main->hashring[index + 1]
-														  ->server_index][i]
-														 ->server_items);
+									[main->hashring[index]->server_index][pos],
+									main->load_balancer_data[main->
+                                    hashring[index + 1]->server_index][i]
+									->server_keys, main->load_balancer_data
+									[main->hashring[index + 1]->
+                                    server_index][i]->server_items);
+
 									server_remove(main->load_balancer_data
-													  [main->hashring[index + 1]
-														   ->server_index][i],
-												  main->load_balancer_data
-													  [main->hashring[index + 1]
-														   ->server_index][i]
-														  ->server_keys);
+									[main->hashring[index + 1]->server_index][i],
+									main->load_balancer_data[main->
+                                    hashring[index + 1]->server_index][i]
+									->server_keys);
 									break;
 								}
 							}
 						}
 					} else if (!index) {
 						// If the index is 0 and the above condition is wrong
-						if (strcmp(main->load_balancer_data
-									   [main->hashring[index]->server_index]
-									   [key_hash % MAX_SERVER_ITEMS]
-										   ->server_items,
-								   "") == 0) {
-							server_store(
-								main->load_balancer_data
-									[main->hashring[index]->server_index]
-									[key_hash % MAX_SERVER_ITEMS],
-								main->load_balancer_data
-									[main->hashring[index + 1]->server_index][i]
-										->server_keys,
-								main->load_balancer_data
-									[main->hashring[index + 1]->server_index][i]
-										->server_items);
-							server_remove(
-								main->load_balancer_data
-									[main->hashring[index + 1]->server_index]
-									[i],
-								main->load_balancer_data
-									[main->hashring[index + 1]->server_index][i]
-										->server_keys);
+						if (strcmp(main->load_balancer_data[main->
+                        hashring[index]->server_index][key_hash %
+                        MAX_SERVER_ITEMS]->server_items, "") == 0) {
+							server_store(main->load_balancer_data
+							[main->hashring[index]->server_index][key_hash %
+                            MAX_SERVER_ITEMS], main->load_balancer_data
+							[main->hashring[index + 1]->server_index][i]->
+                            server_keys, main->load_balancer_data[main->
+                            hashring[index + 1]->server_index][i]->
+                            server_items);
+
+							server_remove(main->load_balancer_data
+							[main->hashring[index + 1]->server_index][i],
+							main->load_balancer_data[main->
+                            hashring[index + 1]->server_index][i]->
+                            server_keys);
+
 						} else {  // else apply linear probing
 							int start = key_hash % MAX_SERVER_ITEMS;
 							for (int r = start; r < start + MAX_SERVER_ITEMS;
-								 r++) {
+								r++) {
 								int pos = r % MAX_SERVER_ITEMS;
-								if (strcmp(main->load_balancer_data
-											   [main->hashring[index]
-													->server_index][pos]
-												   ->server_items,
-										   "") == 0) {
+								if (strcmp(main->load_balancer_data[main->
+                                hashring[index]->server_index][pos]->
+                                server_items, "") == 0) {
 									server_store(main->load_balancer_data
-													 [main->hashring[index]
-														  ->server_index][pos],
-												 main->load_balancer_data
-													 [main->hashring[index + 1]
-														  ->server_index][i]
-														 ->server_keys,
-												 main->load_balancer_data
-													 [main->hashring[index + 1]
-														  ->server_index][i]
-														 ->server_items);
+									[main->hashring[index]->server_index][pos],
+									main->load_balancer_data[main->
+                                    hashring[index + 1]->server_index][i]->
+                                    server_keys, main->load_balancer_data
+									[main->hashring[index + 1]->
+                                    server_index][i]->server_items);
+
 									server_remove(main->load_balancer_data
-													  [main->hashring[index + 1]
-														   ->server_index][i],
-												  main->load_balancer_data
-													  [main->hashring[index + 1]
-														   ->server_index][i]
-														  ->server_keys);
+									[main->hashring[index + 1]->
+                                    server_index][i], main->load_balancer_data
+									[main->hashring[index + 1]->
+                                    server_index][i]->server_keys);
 									break;
 								}
 							}
@@ -523,56 +480,44 @@ void add_server_by_label(load_balancer *main, int server_label, int server_id,
 							->server_label;
 					if (key_hash < label__hash ||
 						key_hash > hash_function_servers(&server_index_last)) {
-						if (strcmp(main->load_balancer_data
-									   [main->hashring[index]->server_index]
-									   [key_hash % MAX_SERVER_ITEMS]
-										   ->server_items,
-								   "") == 0) {
-							server_store(
-								main->load_balancer_data
-									[main->hashring[index]->server_index]
-									[key_hash % MAX_SERVER_ITEMS],
-								main->load_balancer_data
-									[main->hashring[index + 1]->server_index][i]
-										->server_keys,
-								main->load_balancer_data
-									[main->hashring[index + 1]->server_index][i]
-										->server_items);
-							server_remove(
-								main->load_balancer_data
-									[main->hashring[index + 1]->server_index]
-									[i],
-								main->load_balancer_data
-									[main->hashring[index + 1]->server_index][i]
-										->server_keys);
+						if (strcmp(main->load_balancer_data[main->
+                        hashring[index]->server_index][key_hash %
+                        MAX_SERVER_ITEMS]->server_items, "") == 0) {
+							server_store(main->load_balancer_data[main->
+                            hashring[index]->server_index][key_hash %
+                            MAX_SERVER_ITEMS], main->load_balancer_data
+							[main->hashring[index + 1]->server_index][i]
+							->server_keys, main->load_balancer_data
+							[main->hashring[index + 1]->server_index][i]
+                            ->server_items);
+
+							server_remove(main->load_balancer_data
+							[main->hashring[index + 1]->server_index][i],
+							main->load_balancer_data[main->
+                            hashring[index + 1]->server_index][i]->
+                            server_keys);
+
 						} else {  // else apply linear probing
 							int start = key_hash % MAX_SERVER_ITEMS;
 							for (int r = start; r < start + MAX_SERVER_ITEMS;
 								 r++) {
 								int pos = r % MAX_SERVER_ITEMS;
 								if (strcmp(main->load_balancer_data
-											   [main->hashring[index]
-													->server_index][pos]
-												   ->server_items,
-										   "") == 0) {
+								[main->hashring[index]->server_index][pos]
+								->server_items, "") == 0) {
 									server_store(main->load_balancer_data
-													 [main->hashring[index]
-														  ->server_index][pos],
-												 main->load_balancer_data
-													 [main->hashring[index + 1]
-														  ->server_index][i]
-														 ->server_keys,
-												 main->load_balancer_data
-													 [main->hashring[index + 1]
-														  ->server_index][i]
-														 ->server_items);
+									[main->hashring[index]->server_index][pos],
+									main->load_balancer_data[main->
+                                    hashring[index + 1]->server_index][i]
+									->server_keys, main->load_balancer_data
+									[main->hashring[index + 1]->
+                                    server_index][i]->server_items);
+
 									server_remove(main->load_balancer_data
-													  [main->hashring[index + 1]
-														   ->server_index][i],
-												  main->load_balancer_data
-													  [main->hashring[index + 1]
-														   ->server_index][i]
-														  ->server_keys);
+									[main->hashring[index + 1]->
+                                    server_index][i], main->load_balancer_data
+									[main->hashring[index + 1]->
+                                    server_index][i]->server_keys);
 									break;
 								}
 							}
@@ -677,29 +622,20 @@ void move_server_items(load_balancer *main, int index_replica_id, int server_id)
 				int start = key_hash % MAX_SERVER_ITEMS;
 				for (int r = start; r < start + MAX_SERVER_ITEMS; r++) {
 					int pos = r % MAX_SERVER_ITEMS;
-					if (strcmp(main->load_balancer_data[main->hashring[0]
-															->server_index][pos]
-								   ->server_items,
-							   "") == 0) {
-						server_store(
-							main->load_balancer_data[main->hashring[0]
-														 ->server_index][pos],
-							main->load_balancer_data
-								[main->hashring[index_replica_id]->server_index]
-								[i]
-									->server_keys,
-							main->load_balancer_data
-								[main->hashring[index_replica_id]->server_index]
-								[i]
-									->server_items);
-						server_remove(
-							main->load_balancer_data
-								[main->hashring[index_replica_id]->server_index]
-								[i],
-							main->load_balancer_data
-								[main->hashring[index_replica_id]->server_index]
-								[i]
-									->server_keys);
+					if (strcmp(main->load_balancer_data[main->
+                    hashring[0]->server_index][pos]->server_items, "") == 0) {
+						server_store(main->load_balancer_data[main->hashring[0]
+						->server_index][pos], main->load_balancer_data[main->
+                        hashring[index_replica_id]->server_index][i]->
+                        server_keys, main->load_balancer_data[main->
+                        hashring[index_replica_id]->server_index][i]->
+                        server_items);
+
+						server_remove(main->load_balancer_data[main->
+                        hashring[index_replica_id]->server_index][i],
+						main->load_balancer_data[main->
+                        hashring[index_replica_id]->server_index][i]->
+						server_keys);
 						break;
 					}
 				}
@@ -709,28 +645,21 @@ void move_server_items(load_balancer *main, int index_replica_id, int server_id)
 				for (int r = start; r < start + MAX_SERVER_ITEMS; r++) {
 					int pos = r % MAX_SERVER_ITEMS;
 					if (strcmp(main->load_balancer_data[index_new_server][pos]
-								   ->server_items,
-							   "") == 0) {
-						server_store(
-							main->load_balancer_data
-								[main->hashring[index_new_server]->server_index]
-								[pos],
-							main->load_balancer_data
-								[main->hashring[index_replica_id]->server_index]
-								[i]
-									->server_keys,
-							main->load_balancer_data
-								[main->hashring[index_replica_id]->server_index]
-								[i]
-									->server_items);
+					    ->server_items, "") == 0) {
+						server_store(main->load_balancer_data[main->
+                        hashring[index_new_server]->server_index][pos],
+						main->load_balancer_data[main->
+                        hashring[index_replica_id]->server_index][i]
+						->server_keys, main->load_balancer_data
+						[main->hashring[index_replica_id]->server_index][i]
+						->server_items);
+
 						server_remove(
-							main->load_balancer_data
-								[main->hashring[index_replica_id]->server_index]
-								[i],
-							main->load_balancer_data
-								[main->hashring[index_replica_id]->server_index]
-								[i]
-									->server_keys);
+							main->load_balancer_data[main->
+                            hashring[index_replica_id]->server_index][i],
+							main->load_balancer_data[main->
+                            hashring[index_replica_id]->server_index][i]
+							->server_keys);
 						break;
 					}
 				}

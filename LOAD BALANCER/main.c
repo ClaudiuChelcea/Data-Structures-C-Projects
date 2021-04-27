@@ -1,4 +1,4 @@
-/* Copyright Chelcea Claudiu-Marian */ 
+/* Copyright Chelcea Claudiu-Marian */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,25 +6,25 @@
 #include "load_balancer.h"
 #include "utils.h"
 
-int main(int argc, char * argv[]) 
+int main(int argc, char *argv[])
 {
-    FILE * input = NULL;
+	FILE *input = NULL;
 
-    // Check if we have two arguments
-    if (argc != 2) {
-        printf("Usage:%s input_file \n", argv[0]);
-        return -1;
-    }
+	// Check if we have two arguments
+	if (argc != 2) {
+		printf("Usage:%s input_file \n", argv[0]);
+		return -1;
+	}
 
 	// Open the file
-    input = fopen(argv[1], "rt");
-    DIE(input == NULL, "missing input file");
+	input = fopen(argv[1], "rt");
+	DIE(input == NULL, "missing input file");
 
-    // Execute the commands
-    apply_requests(input);
+	// Execute the commands
+	apply_requests(input);
 
 	// Close the file
-    fclose(input);
+	fclose(input);
 
-    return 0;
+	return 0;
 }

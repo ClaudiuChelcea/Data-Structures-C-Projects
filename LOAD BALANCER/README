@@ -1,26 +1,23 @@
-# Chelcea Claudiu
+# Chelcea Claudiu Marian
 
-This load balancer program uses the constant hashing method to serve
-request evenly between all servers.
+This load balancer program uses the consistent hashing method to distribute
+requests evenly between all servers.
+
+The main piece, the load balancer consists of a structure which holds
+an array of 'server_pointer' structures that compose the hashring and
+a matrix of 'server_memory_t' structures, a matrix of dictionaries.
+
+The hashring contains the 'server_pointer' structures, a custom structure
+which holds a replica for a server. Therefore in the hashring we will have
+three structures of this type for a server, each having the same server_index,
+but different server_label.
+
+The servers are actually stored in the dictionary matrix created with the
+'server_memory_t' structure, a matrix of key - pair values.
 
 Implementation:
-Start by receiving the input file then enters a while loop that receives
-all requests, scans them, and based on the scan, we call a specific function.
-
-All servers are held in a dictionary ( key, value ) matrix, that can be
-accessed through the 'server_pointer' structure, which holds the server's
-label, it's index in the dictionary matrix and the real_server_index,
-the value received, that it's only held for output purpose only.
-
-The loader_add_server and loader_remove_server functions add or remove
-three items in the hashring, three replicas, bases on their labels, and
-rebalance objects a.k.a. moves the items of the adjacent servers onto the
-new server / moves the items of the current server onto new servers based
-on their position in the hashring.
-
-The loader_retrieve and loader_store functions execute, as the name specifies,
-a retrieve request or a store request. The loader_retrieve function only
-returns the value found, the loader_store puts our value on a server based
-on the position on the hashring.
+The program starts by opening a file of requests, then enters a loop that
+executes each request by calling a certain function corresponding to the
+request.
 
 In the end, the memory is released.

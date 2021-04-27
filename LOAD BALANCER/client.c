@@ -13,7 +13,8 @@ void get_key_value(char *key, char *value, char *request)
 	size_t index = 0;
 
 	// Scan the request
-	for (size_t i = 0; i < strlen(request); i++) {
+	size_t i = 0;
+	for (i = 0; i < strlen(request); i++) {
 		if (request[i] == compare_item) {
 			i++;
 			// If we find the first "", start searching untill the next one
@@ -34,13 +35,13 @@ void get_key_value(char *key, char *value, char *request)
 	// The command will be: store "key" "value"
 	// So we start at index 7 and stop right before " to save the key
 	int cnt = 0;
-	for (size_t i = 7; i < index - 1; i++)
+	for (i = 7; i < index - 1; i++)
 		key[cnt++] = request[i];
 	cnt = 0;
 
 	// We skip the " at index by adding +1 and skip the " and the string
 	// terminator by substracting 2 on strlen(request)
-	for (size_t i = index + 1; i < strlen(request) - 2; i++)
+	for (i = index + 1; i < strlen(request) - 2; i++)
 		value[cnt++] = request[i + 1];
 }
 
@@ -48,7 +49,8 @@ void get_key_value(char *key, char *value, char *request)
 void get_key(char *key, char *request)
 {
 	int key_start = 0, key_index = 0;
-	for (unsigned int i = 0; i < strlen(request); ++i) {
+	unsigned int i = 0;
+	for (i = 0; i < strlen(request); ++i) {
 		if (request[i] == '"') {
 			key_start = 1;
 		} else if (key_start == 1) {

@@ -2,11 +2,11 @@
 
 # Seti[
 CC=gcc
-CFLAGS=-Wall -Wextra -g
+CFLAGS=-Wall -Wextra -g -std=c11 -pedantic -pedantic-errors
 LOAD=load_balancer
 SERVER=server
 CLIENT=client
-NAME=loadApp
+NAME=tema2
 
 # Main call
 build: app

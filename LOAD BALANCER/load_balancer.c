@@ -3,7 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "load_balancer.h"
-#define STARTING_SERVERS 100
+#define STARTING_SERVERS 200
 #define MAX_SERVER_ITEMS 1000
 
 unsigned int hash_function_servers(void *a) {

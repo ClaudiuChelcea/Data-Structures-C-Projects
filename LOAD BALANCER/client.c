@@ -124,10 +124,18 @@ void apply_requests(FILE* input_file)
 		for(int i=0;i<main_server->current_hashring_items;i++) {
 			printf("Server real index: %d index %d label %d hash %u\n",main_server->hashring[i]->real_server_index,main_server->hashring[i]->server_index,main_server->hashring[i]->server_label,hash_function_servers(&main_server->hashring[i]->server_label));
 		}
-	}
-	if(debug) {
 		for(int i=0;i<47;i++)
 			print_server(main_server,i);
+		// for(int i=0;i<main_server->current_hashring_items;i++) {
+		// 	printf("   %u ->",hash_function_servers(&main_server->hashring[i]->server_label));
+		// }
+		// printf("\n");
+		// for(int i=0;i<main_server->current_hashring_items;i++) {
+		// 	printf("   %d ->",main_server->hashring[i]->server_index);
+		// }
+		// printf("\n");
+		// for(int i=0;i<47;i++)
+		// 	print_server(main_server,i);
 	}
 
 	// Release memory

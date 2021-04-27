@@ -29,6 +29,7 @@ void server_remove(server_memory * server, char * key) {
 
 // Delete an entry from the Hashtable.
 char * server_retrieve(server_memory * server, char * key) {
+	
     if (!server || !key)
         return NULL;
     if (strcmp(server -> server_keys, key) == 0)

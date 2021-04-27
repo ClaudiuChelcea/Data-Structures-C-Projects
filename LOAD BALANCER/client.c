@@ -78,7 +78,6 @@ void apply_requests(FILE * input_file)
 			int index_server = 0;
             get_key_value(key, value, request);
             
-		
             loader_store(main_server, key, value, & index_server);
             printf("Stored %s on server %d.\n", value, index_server);
 
@@ -95,8 +94,7 @@ void apply_requests(FILE * input_file)
             retrieved_value = loader_retrieve(main_server, key, & index_server);
 			
             if (retrieved_value) {
-                printf("Retrieved %s from server %d.\n",
-                    retrieved_value, index_server);
+                printf("Retrieved %s from server %d.\n", retrieved_value, index_server);
             } else {
                 printf("Key %s not present.\n", key);
             }

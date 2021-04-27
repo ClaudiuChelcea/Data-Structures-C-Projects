@@ -208,16 +208,10 @@ void add_server_by_label(load_balancer * main, int server_label, int server_id, 
         // Add to the end
         if (main -> current_hashring_items > 0 && main -> hashring[main -> current_hashring_items - 1] -> server_label != -1 && label__hash > (unsigned int) hash_function_servers( & main -> hashring[main -> current_hashring_items - 1] -> server_label)) {
 
-            // Create new server_pointer
-            server_pointer * new_server = NULL;
-            new_server = malloc(sizeof(server_pointer));
-            DIE(!new_server, "Couldn't create new server!\n");
-            new_server -> server_index = server_index;
-            new_server -> server_label = server_label;
-            new_server -> real_server_index = server_id;
-
             // Put it in the list
-            main -> hashring[main -> current_hashring_items] = new_server;
+            main -> hashring[main -> current_hashring_items]->server_index = server_index;
+            main -> hashring[main -> current_hashring_items]->server_label = server_label;
+            main -> hashring[main -> current_hashring_items]->real_server_index = server_id;
             main -> current_hashring_items = main -> current_hashring_items + 1;
 
             // Rebalance ('steal' from the last and first elements in the hashring)
@@ -264,20 +258,15 @@ void add_server_by_label(load_balancer * main, int server_label, int server_id, 
         }
 
         // Add to the beginning
-        else if (main -> hashring[0] -> server_label == -1 || label__hash < (unsigned int) hash_function_servers( & main -> hashring[0] -> server_label)) {
-            // Create new server_pointer
-            server_pointer * new_server = NULL;
-            new_server = malloc(sizeof(server_pointer));
-            DIE(!new_server, "Couldn't create new server!\n");
-            new_server -> server_index = server_index;
-            new_server -> server_label = server_label;
-            new_server -> real_server_index = server_id;
+        else if (main -> hashring[0] -> server_label == -1 || label__hash < (unsigned int) hash_function_servers( & main -> hashring[0] -> server_label)) {;
 
             // Add first new_server;
             for (int i = main -> current_hashring_items; i >= 1; i--)
                 main -> hashring[i] = main -> hashring[i - 1];
             main -> current_hashring_items = main -> current_hashring_items + 1;
-            main -> hashring[0] = new_server;
+            main -> hashring[0]->server_index = server_index;
+            main -> hashring[0]->server_label = server_label;
+            main -> hashring[0]->real_server_index = server_id;
         }
     } else { // Add in between the elements
         // Create new server_pointer
@@ -388,7 +377,7 @@ void loader_add_server(load_balancer * main, int server_id)
     // If we don't find any missing integer, the server's index will be
     // at the end
     int n = main -> current_hashring_items;
-    int * indexes = calloc(n, sizeof(int));
+    int* indexes = calloc(n, sizeof(int));
     for (int i = 0; i < main -> current_hashring_items; i++) {
         indexes[i] = main -> hashring[i] -> server_index;
     }
@@ -404,7 +393,8 @@ void loader_add_server(load_balancer * main, int server_id)
             break;
         }
     }
-
+    free(indexes);
+    
     // If we didn't find any missing integer
     if (my_server_id == -1) {
         // If we have any items, add to the end
@@ -561,29 +551,48 @@ void loader_remove_server(load_balancer * main, int server_id)
 // Free memory
 void free_load_balancer(load_balancer * my_load_balancer)
 {
-    // Release hashring and servers
-    for (int i = 0; i < my_load_balancer -> current_hashring_items / 3; i++) {
-        free(my_load_balancer -> hashring[i * 3]);
-        free(my_load_balancer -> hashring[i * 3 + 1]);
-        free(my_load_balancer -> hashring[i * 3 + 2]);
-        my_load_balancer -> hashring[i * 3] = NULL;
-        my_load_balancer -> hashring[i * 3 + 1] = NULL;
-        my_load_balancer -> hashring[i * 3 + 2] = NULL;
+    // Release servers and hashring
+    for (int i = 0; i < my_load_balancer -> num_servers; i++) {
         for (int j = 0; j < MAX_SERVER_ITEMS; j++) {
-            free_server_memory(my_load_balancer -> load_balancer_data[i][j]);
-            my_load_balancer -> load_balancer_data[i][j] = NULL;
+            if(my_load_balancer -> load_balancer_data[i][j]) {
+                free_server_memory(my_load_balancer -> load_balancer_data[i][j]);
+                my_load_balancer -> load_balancer_data[i][j] = NULL;
+            }
         }
-        free(my_load_balancer -> load_balancer_data[i]);
-        my_load_balancer -> load_balancer_data[i] = NULL;
+
+        // Hashring
+        if(my_load_balancer -> hashring[i * 3]) {
+        //   free(my_load_balancer -> hashring[i * 3]);
+            my_load_balancer -> hashring[i * 3] = NULL;
+        }
+        if(my_load_balancer -> hashring[i * 3 + 1]) {
+          //  free(my_load_balancer -> hashring[i * 3 + 1]);
+            my_load_balancer -> hashring[i * 3 + 1] = NULL;
+        }
+        if(my_load_balancer -> hashring[i * 3 + 2]) {
+          //  free(my_load_balancer -> hashring[i * 3 + 2]);
+            my_load_balancer -> hashring[i * 3 + 2] = NULL;
+        }
+
+        if(my_load_balancer -> load_balancer_data[i]) {
+            free(my_load_balancer -> load_balancer_data[i]);
+            my_load_balancer -> load_balancer_data[i] = NULL;
+        }
     }
 
     // Release the load balancer's fields
-    free(my_load_balancer -> load_balancer_data);
-    my_load_balancer -> load_balancer_data = NULL;
-    free(my_load_balancer -> hashring);
-    my_load_balancer -> hashring = NULL;
+    if(my_load_balancer -> load_balancer_data) {
+        free(my_load_balancer -> load_balancer_data);
+        my_load_balancer -> load_balancer_data = NULL;
+    }
+    if(my_load_balancer -> hashring) {
+        free(my_load_balancer -> hashring);
+        my_load_balancer -> hashring = NULL;
+    }
 
     // Release the load balancer
-    free(my_load_balancer);
-    my_load_balancer = NULL;
+    if(my_load_balancer) {
+        free(my_load_balancer);
+        my_load_balancer = NULL;
+    }
 }

@@ -224,16 +224,40 @@ void add_server_by_label(load_balancer* main, int server_label, int server_id, i
             main->hashring[main->current_hashring_items] = new_server;
             main->current_hashring_items = main->current_hashring_items + 1;
           
-            // Rebalance ( we 'steal' from the first element in the hashring)
+            // Rebalance (we 'steal' from the last element in the hashring and from the first)
+
+            // LAST ELEMENT
             for(int j=0;j<MAX_SERVER_ITEMS;j++) {
-                if(strcmp(main->load_balancer_data[main->hashring[0]->server_index][j]->server_items,"") !=0 ) {
-                    unsigned int key_hash = hash_function_key(&main->load_balancer_data[main->hashring[0]->server_index][j]->server_keys);
-                    if(key_hash < hash_function_servers(&server_label)) {
+                if(strcmp(main->load_balancer_data[main->hashring[main->current_hashring_items-1]->server_index][j]->server_items,"") !=0 ) {
+                    unsigned int key_hash = hash_function_key(&main->load_balancer_data[main->hashring[main->current_hashring_items-1]->server_index][j]->server_keys);
+                    if(key_hash < hash_function_servers(&server_label) && key_hash > hash_function_servers(&main->hashring[main->current_hashring_items-1]->server_label)) {
                        // apply linear probing
                         int start = key_hash % MAX_SERVER_ITEMS;
                         for(int r = start; r < start +  MAX_SERVER_ITEMS; r++) {
                             int pos = r % MAX_SERVER_ITEMS;
                             if(strcmp(main->load_balancer_data[server_index][pos]->server_items,"") ==0) {
+                                strcpy(main->load_balancer_data[server_index][pos]->server_items,main->load_balancer_data[main->hashring[main->current_hashring_items-1]->server_index][j]->server_items);
+                                strcpy(main->load_balancer_data[server_index][pos]->server_keys,main->load_balancer_data[main->hashring[main->current_hashring_items-1]->server_index][j]->server_keys);
+                                strcpy(main->load_balancer_data[main->hashring[main->current_hashring_items-1]->server_index][j]->server_items,"");
+                                strcpy(main->load_balancer_data[main->hashring[main->current_hashring_items-1]->server_index][j]->server_keys,"");
+                                break;
+                            }
+                        }
+                    } 
+                }
+            }
+
+            // FIRST ELEMENT
+            for(int j=0;j<MAX_SERVER_ITEMS;j++) {
+                if(strcmp(main->load_balancer_data[main->hashring[0]->server_index][j]->server_items,"") !=0 ) {
+                    unsigned int key_hash = hash_function_key(&main->load_balancer_data[main->hashring[0]->server_index][j]->server_keys);
+
+                    if(key_hash < hash_function_servers(&server_label) && key_hash > hash_function_servers(&main->hashring[main->current_hashring_items-2]->server_label)) {
+                       // apply linear probing
+                        int start = key_hash % MAX_SERVER_ITEMS;
+                        for(int r = start; r < start +  MAX_SERVER_ITEMS; r++) {
+                            int pos = r % MAX_SERVER_ITEMS;
+                            if( strcmp(main->load_balancer_data[server_index][pos]->server_items,"") ==0) {
                                 strcpy(main->load_balancer_data[server_index][pos]->server_items,main->load_balancer_data[main->hashring[0]->server_index][j]->server_items);
                                 strcpy(main->load_balancer_data[server_index][pos]->server_keys,main->load_balancer_data[main->hashring[0]->server_index][j]->server_keys);
                                 strcpy(main->load_balancer_data[main->hashring[0]->server_index][j]->server_items,"");

@@ -18,7 +18,7 @@ RopeNode* makeRopeNode(const char* str)
     // Fill node's fields
     new_Node->left = NULL;
     new_Node->right = NULL;
-    new_Node->str = str;
+    new_Node->str = strdup(str);
     new_Node->weight = strlen(new_Node->str);
 
     // Return the created node
@@ -33,8 +33,7 @@ RopeTree* makeRopeTree(RopeNode* root)
     DIE(!new_Tree, "Couldn't create tree!");
 
     // Assign tree's root
-    new_Tree->root = makeRopeNode(strdup(EMPTY));
-    new_Tree->root->str = root->str;
+    new_Tree->root = root;
 
     // Return the created tree
     return new_Tree;

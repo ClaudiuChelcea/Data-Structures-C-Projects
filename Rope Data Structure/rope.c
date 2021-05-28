@@ -12,7 +12,7 @@ RopeNode* makeRopeNode(const char* str)
 {
     // Allocate memory for the node
     RopeNode* new_Node = NULL;
-    new_Node = calloc(1, sizeof(*new_Node));
+    new_Node = calloc(1, sizeof(RopeNode));
     DIE(!new_Node, "Couldn't create new node!");
 
     // Fill node's fields
@@ -29,7 +29,7 @@ RopeTree* makeRopeTree(RopeNode* root)
 {
     // Create tree
     RopeTree* new_Tree = NULL;
-    new_Tree = calloc(1, sizeof(*new_Tree));
+    new_Tree = calloc(1, sizeof(RopeTree));
     DIE(!new_Tree, "Couldn't create tree!");
 
     // Assign tree's root
@@ -122,8 +122,6 @@ RopeTree* delete(RopeTree* rt, int start, int len) {
 }
 
 // FINAL 10p -> complex test involving all operations
-char *strdup(const char *s);
-
 
 char *strdup(const char *s);
 

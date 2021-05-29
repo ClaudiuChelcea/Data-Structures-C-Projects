@@ -100,60 +100,57 @@ RopeTree* concat(RopeTree* rt1, RopeTree* rt2)
     return new_Tree;
 }
 
-char indexRope(RopeTree* rt, int idx) {
-    // TODO 2. Index - 10p
+char indexRope(RopeTree* rt, int idx)
+{
+    // Search by index
+    if(!rt->root->left && !rt->root->right) {
+        // Return character
+        return rt->root->str[idx];
+    }
+
+    // Get through all the nodes
+    if(rt->root->weight <= idx)
+        return indexRope(rt->root->right, idx);
+    else
+        return indexRope(rt->root->left, idx);
 }
 
 
 char* search(RopeTree* rt, int start, int end) {
     // TODO 3. Search - 20p
+     return NULL;
 }
 
 SplitPair split(RopeTree* rt, int idx) {
     // TODO 4. Split - 20p
+    SplitPair my_pair;
+     return my_pair;
 }
 
 RopeTree* insert(RopeTree* rt, int idx, const char* str) {
     // TODO 5. Insert - 5p
+     return NULL;
 }
 
 RopeTree* delete(RopeTree* rt, int start, int len) {
     // TODO 6. Delete - 5p
+    return NULL;
 }
 
 // FINAL 10p -> complex test involving all operations
 
-char *strdup(const char *s);
-
-const char* strs[] = {"Ana", "are", "mere", "legume", "o", "mandarine"};
-
-RopeNode* rnallocated[1000];
-RopeTree* rtallocated[1000];
-int numrn = 0;
-int numrt = 0;
-
-RopeNode * checkerMakeRopeNode(const char *str) {
-   rnallocated[numrn] = makeRopeNode(str);
-   return rnallocated[numrn++];
-}
-
-RopeTree * checkerMakeRopeTree(RopeNode * rn) {
-   rtallocated[numrt] = makeRopeTree(rn);
-   return rtallocated[numrt++];
-}   
-
 int main() {
 
     RopeNode *rn1, *rn2, *rn3, *rn4, *rn5, *rn6, *rn7;
-    RopeTree *rt, *rt1, *rt2;
+    RopeTree *rt;
 
-    rn1 = checkerMakeRopeNode(strdup("abc"));
-    rn2 = checkerMakeRopeNode(strdup("de"));
-    rn3 = checkerMakeRopeNode(strdup("fghi"));
-    rn4 = checkerMakeRopeNode(strdup("jklmn"));
-    rn5 = checkerMakeRopeNode(strdup(EMPTY));
-    rn6 = checkerMakeRopeNode(strdup(EMPTY));
-    rn7 = checkerMakeRopeNode(strdup(EMPTY));
+    rn1 = makeRopeNode("abc");
+    rn2 = makeRopeNode("de");
+    rn3 = makeRopeNode("fghi");
+    rn4 = makeRopeNode("jklmn");
+    rn5 = makeRopeNode(EMPTY);
+    rn6 = makeRopeNode(EMPTY);
+    rn7 = makeRopeNode(EMPTY);
 
     rn5->left = rn1;
     rn5->right = rn2;
@@ -167,32 +164,20 @@ int main() {
     rn7->right = rn6;
     rn7->weight = 5;
 
-    rt = checkerMakeRopeTree(rn7);
+    rt = makeRopeTree(rn7);
 
-    for (unsigned int i = 0; i < sizeof(strs) / sizeof(const char*); ++i) {
-        rt1 = concat(checkerMakeRopeTree(checkerMakeRopeNode(strdup(strs[i]))), rt);
-        printRopeTree(rt1);
-        rt2 = concat(rt, checkerMakeRopeTree(checkerMakeRopeNode(strdup(strs[i]))));
-        printRopeTree(rt2);
-        printf("\n");
-
-        free((void*)rt1->root->str);
-        free(rt1->root);
-        free(rt1);
-
-        free((void*)rt2->root->str);
-        free(rt2->root);
-        free(rt2);
+    for (int i = 0; i < 14; ++i) {
+        printf("Character at index %d is %c\n", i, indexRope(rt, i));
     }
 
-    for (int i = 0; i < numrn; i++) {
-        free((void*)rnallocated[i]->str);
-        free(rnallocated[i]);
-    }
-
-    for (int i = 0; i < numrt; i++) {
-        free(rtallocated[i]);
-    }
+    free(rn1);
+    free(rn2);
+    free(rn3);
+    free(rn4);
+    free(rn5);
+    free(rn6);
+    free(rn7);
+    free(rt);
 
     return 0;
 }

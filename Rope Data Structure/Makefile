@@ -15,6 +15,5 @@ rope_file: $(FILE_NAME).h utils.h
 
 clean:
 	rm $(EXECUTABLE_NAME)
-	rm *.gch
 
 .PHONY: build rope clean

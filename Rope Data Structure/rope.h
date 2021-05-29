@@ -1,9 +1,9 @@
-/* Copyright Chelcea Claudiu-Marian & Brinzan  Darius-Ionut */
+/* Copyright Chelcea Claudiu-Marian & Brinzan Darius-Ionut */
 #include "utils.h"
 #ifndef __ROPE__
 #define __ROPE__
 #define EMPTY ""
-#define NODE_DATA_MAX_LENGTH 100
+#define NODE_DATA_MAX_LENGTH 1000
 
 typedef struct RopeNode RopeNode;
 
@@ -26,6 +26,8 @@ struct SplitPair {
     RopeNode* left;
     RopeNode* right;
 };
+
+char* strdup(const char*);
 
 RopeNode* makeRopeNode(const char* str);
 
@@ -50,3 +52,4 @@ RopeTree* insert(RopeTree* rt, int idx, const char* str);
 RopeTree* delete(RopeTree* rt, int start, int len);
 
 #endif  // __ROPE__
+

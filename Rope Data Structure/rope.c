@@ -1,4 +1,4 @@
-/* Copyright Chelcea Claudiu-Marian & Brinzan  Darius-Ionut */
+/* Copyright Chelcea Claudiu-Marian & Brinzan Darius-Ionut */
 #include "./rope.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -89,7 +89,8 @@ int getTotalWeight(RopeNode* rt) {
 RopeTree* concat(RopeTree* rt1, RopeTree* rt2)
 {
     // Create new tree and assign it an empty root
-    RopeTree* new_Tree = makeRopeTree(makeRopeNode(strdup(EMPTY)));
+    RopeTree* new_Tree = NULL;
+    new_Tree = makeRopeTree(makeRopeNode(strdup(EMPTY)));
 
     // Assing new values
     new_Tree->root->right = rt2->root;
@@ -103,16 +104,17 @@ RopeTree* concat(RopeTree* rt1, RopeTree* rt2)
 char __indexRope(RopeNode* root, int idx)
 {
     // Search by index
-    if(!root->left && !root->right) {
+    if (!root -> left && !root -> right) {
         // Return character
         return root->str[idx];
     }
 
     // Get through all the nodes
-    if(root->weight <= idx)
+    if (root->weight <= idx) {
         return __indexRope(root->right, idx-root->weight);
-    else
+    } else {
         return __indexRope(root->left, idx);
+    }
 }
 
 char indexRope(RopeTree* rt, int idx)
@@ -120,78 +122,39 @@ char indexRope(RopeTree* rt, int idx)
     return __indexRope(rt->root, idx);
 }
 
-char* search(RopeTree* rt, int start, int end) {
+char* search(RopeTree* rt, int start, int end)
+{
+    // Create string to be returned
     char* searched_string = NULL;
-    searched_string = malloc(NODE_DATA_MAX_LENGTH * sizeof(char));
-    DIE(!searched_string, "Coulnd't search string!");
+    searched_string = calloc(NODE_DATA_MAX_LENGTH, sizeof(char));
+    DIE(!searched_string, "Couldn't search string!");
 
-    for(int i = start; i < end; i++) {
+    // Save in the string all the found items
+    for (int i = start; i < end; i++) {
         searched_string[i - start] = indexRope(rt, i);
     }
-    
+
+    // Return the string's address
     return searched_string;
 }
 
 SplitPair split(RopeTree* rt, int idx) {
-    // TODO 4. Split - 20p
+    // Split - 20p
     SplitPair my_pair;
-     return my_pair;
+    my_pair.left = NULL;
+    my_pair.right = NULL;
+    return my_pair;
 }
 
 RopeTree* insert(RopeTree* rt, int idx, const char* str) {
-    // TODO 5. Insert - 5p
+    // Insert - 5p
      return NULL;
 }
 
 RopeTree* delete(RopeTree* rt, int start, int len) {
-    // TODO 6. Delete - 5p
+    // Delete - 5p
     return NULL;
 }
 
 // FINAL 10p -> complex test involving all operations
-int main() {
-    RopeNode *rn1, *rn2, *rn3, *rn4, *rn5, *rn6, *rn7;
-    RopeTree *rt;
 
-    rn1 = makeRopeNode("abc");
-    rn2 = makeRopeNode("de");
-    rn3 = makeRopeNode("fghi");
-    rn4 = makeRopeNode("jklmn");
-    rn5 = makeRopeNode(EMPTY);
-    rn6 = makeRopeNode(EMPTY);
-    rn7 = makeRopeNode(EMPTY);
-
-    rn5->left = rn1;
-    rn5->right = rn2;
-    rn5->weight = 3;
-
-    rn6->left = rn3;
-    rn6->right = rn4;
-    rn6->weight = 4;
-
-    rn7->left = rn5;
-    rn7->right = rn6;
-    rn7->weight = 5;
-
-    rt = makeRopeTree(rn7);
-
-    for (int i = 0; i < 14; ++i) {
-        for (int j = i+1; j < 15; ++j) {
-            char *searched = search(rt, i, j);
-            printf("Substring between %d and %d is %s\n", i, j, searched);
-            free(searched);
-        }
-    }
-
-    free(rn1);
-    free(rn2);
-    free(rn3);
-    free(rn4);
-    free(rn5);
-    free(rn6);
-    free(rn7);
-    free(rt);
-
-
-    return 0;
-}

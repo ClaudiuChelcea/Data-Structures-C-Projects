@@ -1,4 +1,4 @@
-/* Copyright Chelcea Claudiu-Marian & Brinzan  Darius-Ionut */
+/* Copyright Chelcea Claudiu-Marian & Brinzan Darius-Ionut */
 
 #ifndef UTILS_H_
 #define UTILS_H_
@@ -18,3 +18,4 @@
 	} while (0);
 
 #endif  // UTILS_H_
+

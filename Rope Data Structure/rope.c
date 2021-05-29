@@ -121,8 +121,15 @@ char indexRope(RopeTree* rt, int idx)
 }
 
 char* search(RopeTree* rt, int start, int end) {
-    // TODO 3. Search - 20p
-     return NULL;
+    char* searched_string = NULL;
+    searched_string = malloc(NODE_DATA_MAX_LENGTH * sizeof(char));
+    DIE(!searched_string, "Coulnd't search string!");
+
+    for(int i = start; i < end; i++) {
+        searched_string[i - start] = indexRope(rt, i);
+    }
+    
+    return searched_string;
 }
 
 SplitPair split(RopeTree* rt, int idx) {
@@ -142,9 +149,7 @@ RopeTree* delete(RopeTree* rt, int start, int len) {
 }
 
 // FINAL 10p -> complex test involving all operations
-
 int main() {
-
     RopeNode *rn1, *rn2, *rn3, *rn4, *rn5, *rn6, *rn7;
     RopeTree *rt;
 
@@ -171,7 +176,11 @@ int main() {
     rt = makeRopeTree(rn7);
 
     for (int i = 0; i < 14; ++i) {
-        printf("Character at index %d is %c\n", i, indexRope(rt, i));
+        for (int j = i+1; j < 15; ++j) {
+            char *searched = search(rt, i, j);
+            printf("Substring between %d and %d is %s\n", i, j, searched);
+            free(searched);
+        }
     }
 
     free(rn1);
@@ -182,6 +191,7 @@ int main() {
     free(rn6);
     free(rn7);
     free(rt);
+
 
     return 0;
 }

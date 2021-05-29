@@ -18,7 +18,7 @@ RopeNode* makeRopeNode(const char* str)
     // Fill node's fields
     new_Node->left = NULL;
     new_Node->right = NULL;
-    new_Node->str = strdup(str);
+    new_Node->str = str;
     new_Node->weight = strlen(new_Node->str);
 
     // Return the created node
@@ -89,7 +89,7 @@ int getTotalWeight(RopeNode* rt) {
 RopeTree* concat(RopeTree* rt1, RopeTree* rt2)
 {
     // Create new tree and assign it an empty root
-    RopeTree* new_Tree = makeRopeTree(makeRopeNode(EMPTY));
+    RopeTree* new_Tree = makeRopeTree(makeRopeNode(strdup(EMPTY)));
 
     // Assing new values
     new_Tree->root->right = rt2->root;

@@ -100,21 +100,25 @@ RopeTree* concat(RopeTree* rt1, RopeTree* rt2)
     return new_Tree;
 }
 
-char indexRope(RopeTree* rt, int idx)
+char __indexRope(RopeNode* root, int idx)
 {
     // Search by index
-    if(!rt->root->left && !rt->root->right) {
+    if(!root->left && !root->right) {
         // Return character
-        return rt->root->str[idx];
+        return root->str[idx];
     }
 
     // Get through all the nodes
-    if(rt->root->weight <= idx)
-        return indexRope(rt->root->right, idx);
+    if(root->weight <= idx)
+        return __indexRope(root->right, idx-root->weight);
     else
-        return indexRope(rt->root->left, idx);
+        return __indexRope(root->left, idx);
 }
 
+char indexRope(RopeTree* rt, int idx)
+{
+    return __indexRope(rt->root, idx);
+}
 
 char* search(RopeTree* rt, int start, int end) {
     // TODO 3. Search - 20p

@@ -138,11 +138,13 @@ char* search(RopeTree* rt, int start, int end)
     return searched_string;
 }
 
-SplitPair split(RopeTree* rt, int idx) {
-    // Split - 20p
+SplitPair split(RopeTree* rt, int idx)
+{
+    // Create split pair to be returned
     SplitPair my_pair;
     my_pair.left = NULL;
     my_pair.right = NULL;
+
     return my_pair;
 }
 

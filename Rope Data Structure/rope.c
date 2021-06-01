@@ -1,4 +1,3 @@
-/* Copyright Chelcea Claudiu-Marian & Brinzan Darius-Ionut */
 #include "./rope.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -138,24 +137,81 @@ char* search(RopeTree* rt, int start, int end)
     return searched_string;
 }
 
+SplitPair SplitUtil(RopeNode* node, int idx) {
+    if (idx < node->weight) {
+        SplitPair pair = SplitUtil(node->left, idx);
+        SplitPair result = {pair.left, 
+                            concat(makeRopeTree(pair.right),
+                                   makeRopeTree(node->right))->root};
+        return result;
+    } else if (idx > node->weight) {
+        SplitPair pair = SplitUtil(node->right, idx - node->weight);
+        SplitPair result = {concat(makeRopeTree(node->left),
+                                   makeRopeTree(pair.left))->root,
+                            pair.right};
+        return result;
+    } else {
+        SplitPair result = {node->left, node->right};
+        return result;
+    }
+}
+
 SplitPair split(RopeTree* rt, int idx)
 {
     // Create split pair to be returned
-    SplitPair my_pair;
-    my_pair.left = NULL;
-    my_pair.right = NULL;
 
-    return my_pair;
+    int tmp_idx = idx;
+
+    RopeNode* curr_node = rt->root;
+    RopeNode* prev_node = NULL;
+    while (curr_node) {
+        prev_node = curr_node;
+        if (idx < curr_node->weight) {
+            curr_node = curr_node->left;
+        } else {
+            idx -= curr_node->weight;
+            curr_node = curr_node->right;
+        }
+    }
+
+    if (idx) {
+        char left_str[256];
+        char right_str[256];
+
+        for (int i = 0; i < idx; ++i) {
+            left_str[i] = prev_node->str[i];
+        }
+        left_str[idx] = '\0';
+
+        for (int i = idx; i < prev_node->weight; ++i) {
+            right_str[i] = prev_node->str[i];
+        }
+        right_str[prev_node->weight - idx] = '\0';
+
+        RopeNode* left_node = makeRopeNode(left_str);
+        RopeNode* right_node = makeRopeNode(right_str);
+
+        prev_node->left = left_node;
+        prev_node->right = right_node;
+        prev_node->str = NULL;
+        prev_node->weight = idx;
+    }
+
+    return SplitUtil(rt->root, tmp_idx);
 }
 
 RopeTree* insert(RopeTree* rt, int idx, const char* str) {
-    // Insert - 5p
-     return NULL;
+    SplitPair pair = split(rt, idx);
+    return concat(concat(makeRopeTree(pair.left),
+                         makeRopeTree(makeRopeNode(str))), 
+                  makeRopeTree(pair.right));
 }
 
 RopeTree* delete(RopeTree* rt, int start, int len) {
-    // Delete - 5p
-    return NULL;
+    SplitPair pair1 = split(rt, start);
+    SplitPair pair2 = split(makeRopeTree(pair1.right), start + len);
+    return concat(makeRopeTree(pair1.left),
+                  makeRopeTree(pair2.right));
 }
 
 // FINAL 10p -> complex test involving all operations

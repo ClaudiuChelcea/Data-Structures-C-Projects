@@ -51,5 +51,9 @@ RopeTree* insert(RopeTree* rt, int idx, const char* str);
 
 RopeTree* delete(RopeTree* rt, int start, int len);
 
+RopeTree* copyRopeTree(RopeTree* rt);
+
+RopeNode* copyRopeNode(RopeNode* rn);
+
 #endif  // __ROPE__
 

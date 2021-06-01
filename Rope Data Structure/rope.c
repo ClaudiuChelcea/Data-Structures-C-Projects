@@ -3,40 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-
 #define EMPTY ""
-
-// Create a node with the given text
-RopeNode* makeRopeNode(const char* str)
-{
-    // Allocate memory for the node
-    RopeNode* new_Node = NULL;
-    new_Node = calloc(1, sizeof(RopeNode));
-    DIE(!new_Node, "Couldn't create new node!");
-
-    // Fill node's fields
-    new_Node->left = NULL;
-    new_Node->right = NULL;
-    new_Node->str = str;
-    new_Node->weight = strlen(new_Node->str);
-
-    // Return the created node
-    return new_Node;
-}
-
-RopeTree* makeRopeTree(RopeNode* root)
-{
-    // Create tree
-    RopeTree* new_Tree = NULL;
-    new_Tree = calloc(1, sizeof(RopeTree));
-    DIE(!new_Tree, "Couldn't create tree!");
-
-    // Assign tree's root
-    new_Tree->root = root;
-
-    // Return the created tree
-    return new_Tree;
-}
+typedef enum bool { false, true} bool;
 
 // Print the whole tree
 void printRopeNode(RopeNode* rn) {
@@ -60,6 +28,7 @@ void printRopeTree(RopeTree* rt) {
     }
 }
 
+// Debugging function
 void debugRopeNode(RopeNode* rn, int indent) {
     if (!rn)
         return;
@@ -76,7 +45,7 @@ void debugRopeNode(RopeNode* rn, int indent) {
     debugRopeNode(rn->right, indent+2);
 }
 
-
+// Get the total weight of a node
 int getTotalWeight(RopeNode* rt) {
     if (!rt)
         return 0;
@@ -84,6 +53,40 @@ int getTotalWeight(RopeNode* rt) {
     return rt->weight + getTotalWeight(rt->right);
 }
 
+// Create a node with the given text
+RopeNode* makeRopeNode(const char* str)
+{
+    // Allocate memory for the node
+    RopeNode* new_Node = NULL;
+    new_Node = calloc(1, sizeof(RopeNode));
+    DIE(!new_Node, "Couldn't create new node!");
+
+    // Fill node's fields
+    new_Node->left = NULL;
+    new_Node->right = NULL;
+    new_Node->str = str;
+    new_Node->weight = strlen(new_Node->str);
+
+    // Return the created node
+    return new_Node;
+}
+
+// Create a tree having the variable root as the tree's root
+RopeTree* makeRopeTree(RopeNode* root)
+{
+    // Create tree
+    RopeTree* new_Tree = NULL;
+    new_Tree = calloc(1, sizeof(RopeTree));
+    DIE(!new_Tree, "Couldn't create tree!");
+
+    // Assign tree's root
+    new_Tree->root = root;
+
+    // Return the created tree
+    return new_Tree;
+}
+
+// Concatenate two nodes
 RopeNode* node_concat(RopeNode* rt1, RopeNode* rt2)
 {
     // Create new root
@@ -98,7 +101,7 @@ RopeNode* node_concat(RopeNode* rt1, RopeNode* rt2)
     return new_root;
 }
 
-// The same concat,
+// Concatenate two trees
 RopeTree* concat(RopeTree* rt1, RopeTree* rt2)
 {
     // Create new tree and assign it an empty root
@@ -114,27 +117,62 @@ RopeTree* concat(RopeTree* rt1, RopeTree* rt2)
     return new_Tree;
 }
 
-char __indexRope(RopeNode* root, int idx)
+// Return the character at a certain position in the rope
+char __indexRope(RopeNode* root, int index)
 {
     // Search by index
     if (!root -> left && !root -> right) {
-        // Return character
-        return root->str[idx];
+
+        // Return character if we are on a leaf
+        return root->str[index];
     }
 
-    // Get through all the nodes
-    if (root->weight <= idx) {
-        return __indexRope(root->right, idx-root->weight);
+    // Search through the nodes recursively
+    if (root->weight <= index) {
+        return __indexRope(root->right, index-root->weight);
     } else {
-        return __indexRope(root->left, idx);
+        return __indexRope(root->left, index);
     }
 }
 
+// Return the character at the 'idx' position
 char indexRope(RopeTree* rt, int idx)
 {
     return __indexRope(rt->root, idx);
 }
 
+// Copy an entire tree
+RopeNode* __copy_Rope_Node(RopeNode* rn)
+{
+    // If it doesn't exist, return NULL
+    if (!rn)
+        return NULL;
+
+    // Create duplicate and ge it's weight
+    RopeNode* new_rn = makeRopeNode(strdup(rn->str));
+    new_rn->weight = rn->weight;
+
+    // Recursively copy the rest of the nodes
+    new_rn->left = __copy_Rope_Node(rn->left);
+    new_rn->right = __copy_Rope_Node(rn->right);
+
+    // Return the tree(a node with links to another nodes)
+    return new_rn;
+}
+
+// Copy a tree
+RopeTree* __copy_Rope_Tree(RopeTree* rt)
+{
+    // If the tree is NULL, return NULL
+    if (!rt)
+        return NULL;
+
+    // Else copy it
+    return makeRopeTree(__copy_Rope_Node(rt->root));
+}
+
+
+// Search a string from 'start' to 'end' positions
 char* search(RopeTree* rt, int start, int end)
 {
     // Create string to be returned
@@ -142,7 +180,7 @@ char* search(RopeTree* rt, int start, int end)
     searched_string = calloc(NODE_DATA_MAX_LENGTH, sizeof(char));
     DIE(!searched_string, "Couldn't search string!");
 
-    // Save in the string all the found items
+    // Save in the string all the break_condition items
     for (int i = start; i < end; i++) {
         searched_string[i - start] = indexRope(rt, i);
     }
@@ -151,12 +189,15 @@ char* search(RopeTree* rt, int start, int end)
     return searched_string;
 }
 
+// Return the leaf on which we can find the element at position 'index'
 RopeNode* return_wanted_leaf(RopeNode* root, int index)
 {
+    // If we can't go deeper, return the node
     if(!root->left && !root->right) {
         return root;
     }
 
+    // Go down the tree recursively
     if(root->weight >= index) {
         return return_wanted_leaf(root->left,index);
     } else if(root->weight < index) {
@@ -165,247 +206,179 @@ RopeNode* return_wanted_leaf(RopeNode* root, int index)
     return NULL;
 }
 
-// Split a node in two parts
-void splitNode(RopeNode* node, int index) {
-    char* str1 = calloc(100,sizeof(char));
-    for(int i=0;i<index;i++)
-        str1[i] = node->str[i];
-    
-    char* str2 = calloc(100,sizeof(char));
-    for(size_t i=index;i<strlen(node->str);i++)
-        str2[i-index] = node->str[i];
+// Allocate string and copy contents
+char* new_string(int start, int stop, char* source) 
+{
+    // Receive the part of the string
+    char* my_string = NULL;
+    my_string = calloc(NODE_DATA_MAX_LENGTH, sizeof(char));
+    DIE(!my_string, "Couldn't split node!");
 
-    node->left = makeRopeNode(str1);
-    node->right = makeRopeNode(str2);
+    // Copy content in the string
+    int position = 0;
+    for(int i = start; i< stop; i++)
+        my_string[position++] = source[i];
+
+    // Return the new string
+    return my_string;
 }
 
-// Inorder traversal
-void inorder(RopeNode* node, RopeNode** orphanans, int index, int *write, int* found) {
-    if(!node)
+// Split a node in two parts
+void splitNode(RopeNode* node, int index)
+{
+    // Receive the strings for the new nodes
+    char* str1 = new_string(0, index, (void*) node->str);
+    char* str2 = new_string(index, strlen(node->str), (void*) node->str);
+
+    // Create a right node and a left node as childs of the current node
+    node->right = makeRopeNode(str2);
+    node->left = makeRopeNode(str1);
+}
+
+// Inorder traversal to store in the 'nodes_to_move' variable all nodes
+// than are after index and therefore in the right subtree
+void get_extra_nodes(RopeNode** nodes_to_move, RopeNode* root, int *nr_elements, bool* break_condition, int index)
+{
+    // Break recursivity
+    if(!root)
         return;
 
-    if(!node->left && !node->right) {
-        if(index == node->weight) {
-            *found = 1;
+    // If we are on the leaf
+    if(!root->left && !root->right) {
+        // If we have broken down the leaf enough so that the index
+        // matches the root's weight, set break_condition to 1
+        // to start returning all other nodes from now on in nodes_to_move
+        // variable
+        if(index == root->weight) {
+            *break_condition = 1;
             return;
         }
+        // Else split the node in two nodes
+        // Example: From abc we will have node->left = 'a' 
+        // and node->right =  'bc' while the current node stays the same
         else {
-            splitNode(node,index);
-            index = node->left->weight;
+            splitNode(root,index);
+            index = root->left->weight;
         }
     }
 
-    // Inorder traversal until we find node
-    if(!(*found)) {
+    // Inorder traversal until we find node at the 'index' position
+    // only as long as the break_condition has not been fullfilled
+    if(!(*break_condition)) {
         // Go left if the weight is bigger than our index
-        if(index <=node->weight) {
-            inorder(node->left, orphanans, index, write,found);
+        if(index <= root->weight) {
+            get_extra_nodes(nodes_to_move, root->left, nr_elements, break_condition, index);
         }
         // Otherwise go right
         else {
-            inorder(node->right,orphanans,index - node->weight, write, found);
+            get_extra_nodes(nodes_to_move, root->right, nr_elements, break_condition, index - root->weight);
         }
     }
-    if(index <= node->weight)  {
-        orphanans[(*write)++] = node->right;
-        node->right = NULL;
+
+    // While going up the tree from the recursivity
+    // Put all the right nodes that don't fit in the index
+    // in the vector intended to move them to the right subtree
+    if(root->weight >= index)  {
+        // Save element
+        nodes_to_move[*nr_elements] = root->right;
+        
+        // Break link from the left subtree
+        root->right = NULL;
+
+        // Increase the number of elements
+        ++(*nr_elements);
     }
 }
 
-// Release nodes
-void __free_Nodes(RopeNode** root) {
+// Release nodes in an postorder fashion
+void __free_Nodes(RopeNode** root)
+{
+    // Stop recursivity
     if(!(*root))
         return;
         
-    free((void*)(*root)->str);
+    // Recursive calls on all the nodes of the tree
     __free_Nodes(&(*root)->left);
     __free_Nodes(&(*root)->right);
+    free((void*)(*root)->str);
     free((*root));
 }
 
-// Release tree
-void free_Tree(RopeTree* rt) {
-    __free_Nodes(&(rt->root));
+// Initialise pair
+SplitPair __make_pair(RopeNode* new_root)
+{
+    // Create new pair
+    SplitPair new_pair;
+    
+    // Initialise it
+    new_pair.left = new_root;
+    new_pair.right = NULL;
+
+    // Return it
+    return new_pair;
 
 }
-// Split NODE
+
+// Split a tree and it's nodes at 'idx' position
 SplitPair split(RopeTree* rt, int idx)
 {
     // Create tree duplicate to not change the original tree
-    RopeTree* copy = copyRopeTree(rt);
+    RopeTree* new_Tree = __copy_Rope_Tree(rt);
 
     // Create subtrees to be returned
-    SplitPair sp_trees;
-    sp_trees.left = NULL;
-    sp_trees.right = NULL;
-    sp_trees.left = copy->root;
+    SplitPair my_pair = __make_pair(new_Tree->root);
 
     // If the index is '0'
     if(idx == 0) {
-        // Th
-        sp_trees.left = copy->root;
-        // sp_trees.left = makeRopeNode(strdup(EMPTY));
-        // sp_trees.right = copy->root;
-        free(copy);
-        return sp_trees;
-    }
-    
-    // If we want to perfectly split
-    if(idx == getTotalWeight(copy->root)) {
-         sp_trees.right =makeRopeNode(strdup(EMPTY));
-         free(copy);
-         return sp_trees;
-         
-    }
-    
-    // Split the tree in half
-    if(idx == rt->root->weight) {
-        sp_trees.right = sp_trees.left->right;
-        sp_trees.left->right = NULL;
-        free(copy);
-        return sp_trees;
+        // We don't need to change anything, just return the already built tree
+        free(new_Tree);
+        return my_pair;
     }
 
-    // Get nodes to be appened to the right subtree
-    RopeNode** orphans = calloc(100,sizeof(RopeNode*));
-    int write = 0, found  = 0;
-    inorder(sp_trees.left,orphans,idx,&write,&found);
+    // Save the nodes that need to be moved in a vector
+    // for constant time access
+    int nr_elements = 0;
+    bool break_condition = false;
+    RopeNode** nodes_to_move = calloc(MAX_NODES_TO_MOVE, sizeof(RopeNode*));
 
+    // Add in the vector all extra elements(that are after 'idx')
+    get_extra_nodes(nodes_to_move, my_pair.left, &nr_elements, &break_condition, idx);
 
-    if(write > 1){
-        sp_trees.right = node_concat(orphans[0], orphans[1]);
-        for(int i=2;i<write;++i) {
-            sp_trees.right = node_concat(sp_trees.right,orphans[i]);
-        }
+    // Move all elements from the vector to the right tree
+    for(int i=0;i<nr_elements;++i) {
+        my_pair.right = node_concat(my_pair.right,nodes_to_move[i]);
     }
-    else {
-            sp_trees.right = node_concat(sp_trees.right,orphans[0]);
-    }
-    free(orphans);
-    free(copy);    
-    return sp_trees;
+
+    // Release memory
+    free(nodes_to_move);
+    free(new_Tree);  
+
+    // Return the two newly formed trees  
+    return my_pair;
 }
 
-RopeTree* insert(RopeTree* rt, int idx, const char* str) {
+// Insert a string in our current rope data structure
+RopeTree* insert(RopeTree* rt, int idx, const char* str)
+{
+    // Split the current string at the 'idx' position
     SplitPair pair = split(rt, idx);
+
+    // Concatenate the left string with the new string and with the right string
     return concat(concat(makeRopeTree(pair.left),
-                         makeRopeTree(makeRopeNode(str))), 
+                  makeRopeTree(makeRopeNode(str))), 
                   makeRopeTree(pair.right));
 }
 
-RopeTree* delete(RopeTree* rt, int start, int len) {
+// Delete a tring from the current string held in the rope data structure
+RopeTree* delete(RopeTree* rt, int start, int len)
+{
+    // Split the string at the 'start' position
     SplitPair pair1 = split(rt, start);
+    
+    // Split the right string again
     SplitPair pair2 = split(makeRopeTree(pair1.right), start + len);
+
+    // Return the remainder
     return concat(makeRopeTree(pair1.left),
                   makeRopeTree(pair2.right));
-}
-
-// FINAL 10p -> complex test involving all operations
-
-char* strdup(const char*);
-
-RopeNode* rnallocated[1000];
-RopeTree* rtallocated[1000];
-int numrn = 0;
-int numrt = 0;
-
-RopeNode * checkerMakeRopeNode(const char *str) {
-   rnallocated[numrn] = makeRopeNode(str);
-   return rnallocated[numrn++];
-}
-
-RopeTree * checkerMakeRopeTree(RopeNode * rn) {
-   rtallocated[numrt] = makeRopeTree(rn);
-   return rtallocated[numrt++];
-}   
-
-RopeNode* copyRopeNode(RopeNode* rn) {
-    if (!rn)
-        return NULL;
-
-    RopeNode* new_rn = makeRopeNode(strdup(rn->str));
-    new_rn->weight = rn->weight;
-    new_rn->left = copyRopeNode(rn->left);
-    new_rn->right = copyRopeNode(rn->right);
-    return new_rn;
-}
-
-RopeTree* copyRopeTree(RopeTree* rt) {
-    if (!rt)
-        return NULL;
-
-    RopeTree* new_rt = makeRopeTree(copyRopeNode(rt->root));
-    return new_rt;
-}
-
-void freeRopeNode(RopeNode* rn) {
-    if (rn == NULL)
-        return;
-    for (int i = 0; i < numrn; ++i)
-        if (rn == rnallocated[i])
-            return;
-
-    free((void*)rn->str);
-    freeRopeNode(rn->left);
-    freeRopeNode(rn->right);
-    free(rn);
-}
-
-//void freeRopeTree(RopeTree* rt) {
-//    if (!rt)
-//        return;
-//
-//    freeRopeNode(rt->root);
-//}
-
-int main() {
-
-    RopeNode *rn1, *rn2, *rn3, *rn4, *rn5, *rn6, *rn7;
-    RopeTree *rt, *rt1, *rt2;
-
-    rn1 = checkerMakeRopeNode(strdup("abc"));
-    rn2 = checkerMakeRopeNode(strdup("de"));
-    rn3 = checkerMakeRopeNode(strdup("fghi"));
-    rn4 = checkerMakeRopeNode(strdup("jklmn"));
-    rn5 = checkerMakeRopeNode(strdup(EMPTY));
-    rn6 = checkerMakeRopeNode(strdup(EMPTY));
-    rn7 = checkerMakeRopeNode(strdup(EMPTY));
-
-    rn5->left = rn1;
-    rn5->right = rn2;
-    rn5->weight = 3;
-
-    rn6->left = rn3;
-    rn6->right = rn4;
-    rn6->weight = 4;
-
-    rn7->left = rn5;
-    rn7->right = rn6;
-    rn7->weight = 5;
-
-    rt = checkerMakeRopeTree(rn7);
-
-    for (int i = 0; i < 15; ++i) {
-        SplitPair sp = split(rt, i); 
-        rt1 = makeRopeTree(sp.left);
-        printRopeTree(rt1);
-        rt2 = makeRopeTree(sp.right);
-        printRopeTree(rt2);
-        printf("\n");
-        freeRopeNode(sp.left);
-        free(rt1);
-        freeRopeNode(sp.right);
-        free(rt2);
-    }
-
-    for (int i = 0; i < numrn; i++) {
-        free((void*)rnallocated[i]->str);
-        free(rnallocated[i]);
-    }
-
-    for (int i = 0; i < numrt; i++) {
-        free(rtallocated[i]);
-    }
-
-    return 0;
 }

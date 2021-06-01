@@ -3,7 +3,8 @@
 #ifndef __ROPE__
 #define __ROPE__
 #define EMPTY ""
-#define NODE_DATA_MAX_LENGTH 1000
+#define NODE_DATA_MAX_LENGTH 20
+#define MAX_NODES_TO_MOVE 50
 
 typedef struct RopeNode RopeNode;
 

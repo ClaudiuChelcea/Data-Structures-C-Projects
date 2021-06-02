@@ -1,1 +1,45 @@
 # Chelcea Claudiu-Marin & Brinzan Darius-Ionut
+
+In this program we implement the Rope Data Structure, used by text editors.
+
+Implementation:
+The most important functionalities of the rope are:
+
+1. String concatenation:
+For concatenation, we created an empty tree, whose root's childs become
+the received two nodes; After the weight of the root is calculated,
+the tree is returned.
+
+2. Character search by index:
+Return the character at the 'index' position by going down the binary tree
+based on the nodes's weight.
+
+3. Search a string:
+Returns a string by calling the Index Search operation described
+above by the specified number of times.
+
+4. Split the tree:
+In the split function, we want to split the main tree in two other trees,
+splitting them at 'index' position.
+
+We start by creating a duplicate tree to the main one and saving the two trees
+in the 'my_pair' variable, initially holding the tree in the my_pair.left field
+
+We check two special cases to make the program more efficient:
+if the idx == 0, we return the already built tree
+if all text is in the left side (the left tree's weight == index) do nothing
+
+Otherwise, save in a node vector all nodes that contains text after the 'index'
+position, using the 'get_extra_nodes' function. In the end, add the nodes from
+this vector to the right tree and recalculate the weight in the left tree.
+
+5. String insertion:
+We split the tree at the required index, then concatenate the left part with
+the new string and then concatenate the newly formed part with the right part.
+In the end, return the newly created tree.
+
+6. String remove;
+Split the tree at the 'start' index into two trees.
+Split again the right tree at the 'len; index;
+Return the concatenated left part and the new right part, thus ignoring the
+middle.

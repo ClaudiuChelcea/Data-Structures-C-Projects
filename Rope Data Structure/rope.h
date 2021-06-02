@@ -1,5 +1,4 @@
 /* Copyright Chelcea Claudiu-Marian & Brinzan Darius-Ionut */
-#include "utils.h"
 #ifndef __ROPE__
 #define __ROPE__
 #define EMPTY ""

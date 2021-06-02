@@ -5,7 +5,10 @@
 #include <string.h>
 #include <assert.h>
 #define EMPTY ""
+
 typedef enum bool { false, true} bool;
+
+char* strdup(const char*);
 
 // Print the whole tree
 void printRopeNode(RopeNode* rn) {
@@ -91,7 +94,7 @@ RopeTree* makeRopeTree(RopeNode* root)
 RopeNode* node_concat(RopeNode* rt1, RopeNode* rt2)
 {
     // Create new root
-    RopeNode* new_root = makeRopeNode(strdup(EMPTY));
+    RopeNode* new_root = makeRopeNode((char*) strdup(EMPTY));
 
     // Assing new values
     new_root->right = rt2;
@@ -107,7 +110,7 @@ RopeTree* concat(RopeTree* rt1, RopeTree* rt2)
 {
     // Create new tree and assign it an empty root
     RopeTree* new_Tree = NULL;
-    new_Tree = makeRopeTree(makeRopeNode(strdup(EMPTY)));
+    new_Tree = makeRopeTree(makeRopeNode((char*) strdup(EMPTY)));
 
     // Assing new values
     new_Tree->root->right = rt2->root;
@@ -121,8 +124,12 @@ RopeTree* concat(RopeTree* rt1, RopeTree* rt2)
 // Return the character at a certain position in the rope
 char __indexRope(RopeNode* root, int index)
 {
+    if (!root) {
+        return ' ';
+    }
+
     // Search by index
-    if (!root -> left && !root -> right) {
+    if (root && !root -> left && !root -> right) {
         // Return character if we are on a leaf
         return root->str[index];
     }
@@ -149,7 +156,7 @@ RopeNode* __copy_Rope_Node(RopeNode* rn)
         return NULL;
 
     // Create duplicate and ge it's weight
-    RopeNode* new_rn = makeRopeNode(strdup(rn->str));
+    RopeNode* new_rn = makeRopeNode((char*) strdup(rn->str));
     new_rn->weight = rn->weight;
 
     // Recursively copy the rest of the nodes
@@ -307,6 +314,29 @@ SplitPair __make_pair(RopeNode* new_root)
     return new_pair;   // Return it
 }
 
+// Recalculate weights for the nodes
+void rebalance_weights(RopeNode* root)
+{
+    // Inorder traversal to recalculate the weights
+    // in the split function
+    if (!root) {
+        return;
+    }
+
+    // Go to the left
+    rebalance_weights(root->left);
+
+    // If it's a leaf, it's weight is equal to it's string length
+    if (!root->left && !root->right) {
+        root->weight = strlen(root->str);
+    } else {  // Else the weight of the current node is equal to the left tree
+        root->weight = getTotalWeight(root->left);
+    }
+
+    // Go to the right
+    rebalance_weights(root->right);
+}
+
 // Split a tree and it's nodes at 'idx' position
 SplitPair split(RopeTree* rt, int idx)
 {
@@ -319,14 +349,14 @@ SplitPair split(RopeTree* rt, int idx)
     // Special case 1: if the index is '0'
     if (idx == 0) {  // Return the already built tree
         my_pair.right = new_Tree->root;
-        my_pair.left = makeRopeNode(strdup(EMPTY));
+        my_pair.left = makeRopeNode((char*) strdup(EMPTY));
         free(new_Tree);  // Release memory
         return my_pair;  // Return trees
     }
 
     // Special case 2: If everything is in the left tree
     if (getTotalWeight(new_Tree->root) == idx) {   // Set new trees
-        my_pair.right = makeRopeNode(strdup(EMPTY));
+        my_pair.right = makeRopeNode((char*) strdup(EMPTY));
         my_pair.left = new_Tree->root;
         free(new_Tree);  // Release memory
         return my_pair;  // Return trees
@@ -348,6 +378,9 @@ SplitPair split(RopeTree* rt, int idx)
     // Release memory
     free(nodes_to_move);
     free(new_Tree);
+
+    // Recalculate weight for the left tree
+    rebalance_weights(my_pair.left);
     return my_pair;  // Return the two newly formed trees
 }
 
@@ -357,20 +390,18 @@ RopeTree* insert(RopeTree* rt, int idx, const char* str)
     // Split the current string at the 'idx' position
     SplitPair pair = split(rt, idx);
 
-    // Concatenate left + new + right
-    return concat(concat(makeRopeTree(pair.left),
-                  makeRopeTree(makeRopeNode(str))),
-                  makeRopeTree(pair.right));
+    // Concatenate left tree with the new string and then with the right tree
+    return makeRopeTree(node_concat(node_concat((pair.left),
+                        makeRopeNode(str)), pair.right));
 }
 
-// Delete a tring from the current string held in the rope data structure
+// Delete a string from the current string held in the rope data structure
 RopeTree* delete(RopeTree* rt, int start, int len)
 {
     SplitPair pair1 = split(rt, start);  // Split str at the 'start' position
     // Split the right string again
-    SplitPair pair2 = split(makeRopeTree(pair1.right), start + len);
+    SplitPair pair2 = split(makeRopeTree(pair1.right), len);
 
     // Return the remainder
-    return concat(makeRopeTree(pair1.left),
-                  makeRopeTree(pair2.right));
+    return makeRopeTree(node_concat(pair1.left, pair2.right));
 }

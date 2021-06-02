@@ -27,8 +27,6 @@ struct SplitPair {
     RopeNode* right;
 };
 
-char* strdup(const char*);
-
 RopeNode* makeRopeNode(const char* str);
 
 RopeTree* makeRopeTree(RopeNode* root);
@@ -56,4 +54,3 @@ RopeTree* copyRopeTree(RopeTree* rt);
 RopeNode* copyRopeNode(RopeNode* rn);
 
 #endif  // __ROPE__
-

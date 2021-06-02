@@ -1,4 +1,4 @@
-#include "../rope.h"
+#include "./rope.h"
 #include "utils.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -405,10 +405,6 @@ RopeTree* delete(RopeTree* rt, int start, int len)
     // Return the remainder
     return makeRopeTree(node_concat(pair1.left, pair2.right));
 }
-
-#include "../rope.h"
-#include <stdio.h>
-#include <stdlib.h>
 
 const char* strs[] = {"123", "1234", "1234567", "0", "!?"};
 

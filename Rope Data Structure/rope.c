@@ -1,4 +1,5 @@
 #include "./rope.h"
+#include "utils.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -240,8 +241,9 @@ void get_extra_nodes(RopeNode** nodes_to_move, RopeNode* root,
                      int *nr_elements, bool* break_condition, int index)
 {
     // Break recursivity
-    if (!root)
+    if (!root) {
         return;
+    }
 
     // If we are on the leaf
     if (!root->left && !root->right) {
@@ -252,13 +254,9 @@ void get_extra_nodes(RopeNode** nodes_to_move, RopeNode* root,
         if (index == root->weight) {
             *break_condition = 1;
             return;
-        }
-        else {
-            // Else split the node in two nodes
-            // Example: From abc we will have node->left = 'a' 
-            // and node->right =  'bc' while ( the current node stays the same
-            splitNode(root,index);
-            index = root->left->weight;
+        } else {  // Else split the node in two nodes Example: From abc we will
+            splitNode(root, index);  // have node->left='a' && node->right ='bc'
+            index = root->left->weight;  // while the curr. node stays the same
         }
     }
 
@@ -267,11 +265,11 @@ void get_extra_nodes(RopeNode** nodes_to_move, RopeNode* root,
     if (!(*break_condition)) {
         // Go left if the weight is bigger than our index
         if (index <= root->weight) {
-            get_extra_nodes(nodes_to_move, root->left, nr_elements, break_condition, index);
-        }
-        // Otherwise go right
-        else {
-            get_extra_nodes(nodes_to_move, root->right, nr_elements, break_condition, index - root->weight);
+            get_extra_nodes(nodes_to_move, root->left,
+                            nr_elements, break_condition, index);
+        } else {  // Otherwise go right
+            get_extra_nodes(nodes_to_move, root->right, nr_elements,
+                            break_condition, index - root->weight);
         }
     }
 
@@ -279,14 +277,9 @@ void get_extra_nodes(RopeNode** nodes_to_move, RopeNode* root,
     // Put all the right nodes that don't fit in the index
     // in the vector intended to move them to the right subtree
     if (root->weight >= index)  {
-        // Save element
-        nodes_to_move[*nr_elements] = root->right;
-        
-        // Break link from the left subtree
-        root->right = NULL;
-
-        // Increase the number of elements
-        ++(*nr_elements);
+        nodes_to_move[*nr_elements] = root->right;  // Save element
+        root->right = NULL;  // Break link from the left subtree
+        ++(*nr_elements);   // Increase the number of elements
     }
 }
 
@@ -294,9 +287,9 @@ void get_extra_nodes(RopeNode** nodes_to_move, RopeNode* root,
 void __free_Nodes(RopeNode** root)
 {
     // Stop recursivity
-    if (!(*root))
+    if (!(*root)) {
         return;
-        
+    }
     // Recursive calls on all the nodes of the tree
     __free_Nodes(&(*root)->left);
     __free_Nodes(&(*root)->right);
@@ -307,16 +300,11 @@ void __free_Nodes(RopeNode** root)
 // Initialise pair
 SplitPair __make_pair(RopeNode* new_root)
 {
-    // Create new pair
+    // Create new pair and initialise it
     SplitPair new_pair;
-    
-    // Initialise it
     new_pair.left = new_root;
     new_pair.right = NULL;
-
-    // Return it
-    return new_pair;
-
+    return new_pair;   // Return it
 }
 
 // Split a tree and it's nodes at 'idx' position
@@ -328,49 +316,57 @@ SplitPair split(RopeTree* rt, int idx)
     // Create subtrees to be returned
     SplitPair my_pair = __make_pair(new_Tree->root);
 
-    // If the index is '0'
-    if (idx == 0) {
-        // We don't need to change anything, just return the already built tree
-        free(new_Tree);
-        return my_pair;
+    // Special case 1: if the index is '0'
+    if (idx == 0) {  // Return the already built tree
+        my_pair.right = new_Tree->root;
+        my_pair.left = makeRopeNode(strdup(EMPTY));
+        free(new_Tree);  // Release memory
+        return my_pair;  // Return trees
     }
 
-    // Save the nodes that need to be moved in a vector
-    // for constant time access
+    // Special case 2: If everything is in the left tree
+    if (getTotalWeight(new_Tree->root) == idx) {   // Set new trees
+        my_pair.right = makeRopeNode(strdup(EMPTY));
+        my_pair.left = new_Tree->root;
+        free(new_Tree);  // Release memory
+        return my_pair;  // Return trees
+    }
+
+    //  Save the nodes that need to be moved in a vector for O(1) access time
     int nr_elements = 0;
     bool break_condition = false;
     RopeNode** nodes_to_move = calloc(MAX_NODES_TO_MOVE, sizeof(RopeNode*));
 
     // Add in the vector all extra elements(that are after 'idx')
-    get_extra_nodes(nodes_to_move, my_pair.left, &nr_elements, &break_condition, idx);
+    get_extra_nodes(nodes_to_move, my_pair.left, &nr_elements,
+                    &break_condition, idx);
 
     // Move all elements from the vector to the right tree
-    for (int i=0;i<nr_elements;++i) {
-        my_pair.right = node_concat(my_pair.right,nodes_to_move[i]);
+    for (int i = 0; i < nr_elements; ++i) {
+        my_pair.right = node_concat(my_pair.right, nodes_to_move[i]);
     }
     // Release memory
     free(nodes_to_move);
-    free(new_Tree);  
-    
-    // Return the two newly formed trees
-    return my_pair;
+    free(new_Tree);
+    return my_pair;  // Return the two newly formed trees
 }
 
 // Insert a string in our current rope data structure
 RopeTree* insert(RopeTree* rt, int idx, const char* str)
 {
     // Split the current string at the 'idx' position
-    SplitPair pair = split(rt, idx); // Concatenate left + new + right
+    SplitPair pair = split(rt, idx);
+
+    // Concatenate left + new + right
     return concat(concat(makeRopeTree(pair.left),
-                  makeRopeTree(makeRopeNode(str))), 
+                  makeRopeTree(makeRopeNode(str))),
                   makeRopeTree(pair.right));
 }
 
 // Delete a tring from the current string held in the rope data structure
 RopeTree* delete(RopeTree* rt, int start, int len)
 {
-    // Split the string at the 'start' position
-    SplitPair pair1 = split(rt, start);
+    SplitPair pair1 = split(rt, start);  // Split str at the 'start' position
     // Split the right string again
     SplitPair pair2 = split(makeRopeTree(pair1.right), start + len);
 
@@ -378,4 +374,3 @@ RopeTree* delete(RopeTree* rt, int start, int len)
     return concat(makeRopeTree(pair1.left),
                   makeRopeTree(pair2.right));
 }
-
